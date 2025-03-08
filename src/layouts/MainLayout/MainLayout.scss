@@ -1,7 +1,7 @@
 .layout {
   display: grid;
-  grid-template-columns: 180px 1fr; // Sidebar + Contenuto principale
-  height: 100vh; // Occupa tutta l'altezza della viewport
+  grid-template-columns: 180px 1fr;
+  height: 100vh;
 
   .sidebar {
     background-color: #222;
@@ -11,7 +11,6 @@
   }
 
   .content {
-    background-color: #f8f9fa;
     padding: 20px;
     overflow-y: auto;
   }

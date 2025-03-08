@@ -5,7 +5,7 @@ export default function SlotsHandler() {
 
     return(
         <div className="slots-handler">
-            <div id='monday' className="weekday">
+            <div id='w1' className="weekday">
                 <div className="weekday-title">LUN 1</div>
                 <div className="slots-deck">
                     <div className="slot">
@@ -35,7 +35,7 @@ export default function SlotsHandler() {
                 </div>
             </div>
 
-            <div id='monday' className="weekday">
+            <div id='w2' className="weekday">
                 <div className="weekday-title">LUN 1</div>
                 <div className="slots-deck">
                     <div className="slot">
@@ -65,7 +65,7 @@ export default function SlotsHandler() {
                 </div>
             </div>
 
-            <div id='monday' className="weekday">
+            <div id='w3' className="weekday">
                 <div className="weekday-title">LUN 1</div>
                 <div className="slots-deck">
                     <div className="slot">
@@ -95,7 +95,7 @@ export default function SlotsHandler() {
                 </div>
             </div>
 
-            <div id='monday' className="weekday">
+            <div id='w4' className="weekday">
                 <div className="weekday-title">LUN 1</div>
                 <div className="slots-deck">
                     <div className="slot">
@@ -125,7 +125,7 @@ export default function SlotsHandler() {
                 </div>
             </div>
 
-            <div id='monday' className="weekday">
+            <div id='w5' className="weekday">
                 <div className="weekday-title">LUN 1</div>
                 <div className="slots-deck">
                     <div className="slot">
@@ -155,7 +155,7 @@ export default function SlotsHandler() {
                 </div>
             </div>
 
-            <div id='monday' className="weekday">
+            <div id='w6' className="weekday">
                 <div className="weekday-title">LUN 1</div>
                 <div className="slots-deck">
                     <div className="slot">
@@ -185,7 +185,7 @@ export default function SlotsHandler() {
                 </div>
             </div>
 
-            <div id='monday' className="weekday">
+            <div id='w7' className="weekday">
                 <div className="weekday-title">LUN 1</div>
                 <div className="slots-deck">
                     <div className="slot">

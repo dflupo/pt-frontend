@@ -6,42 +6,42 @@
     width: 100%;
   }
   
-  .weekday {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid $border-color;
-    padding: 10px;
-  }
-  
-  .weekday-title {
-    font-size: $text-s;
-    margin-bottom: 10px;
-    color: $text-sec-color;
-  }
-  
-  .slots-deck {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  
-  .slot {
-    background-color: white;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.weekday {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid $border-color;
+  padding: 10px;
+}
 
-    .time {
-        font-size: $text-xs;
-    }
+.weekday-title {
+  font-size: $text-s;
+  margin-bottom: 10px;
+  color: $text-sec-color;
+}
 
-    .capacity {
-        font-size: $text-s;
-    }
+.slots-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.slot {
+  background-color: white;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid $border-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .time {
+      font-size: $text-xs;
   }
+
+  .capacity {
+      font-size: $text-s;
+  }
+}
 
 
   
