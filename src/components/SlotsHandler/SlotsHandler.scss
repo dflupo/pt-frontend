@@ -1,24 +1,22 @@
+@import '../../styles/variables';
+
 .slots-handler {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); // 7 colonne uguali
-    gap: 10px; // Spaziatura tra i giorni
+    grid-template-columns: repeat(7, 1fr);
     width: 100%;
-    padding: 20px;
   }
   
   .weekday {
     display: flex;
     flex-direction: column;
-    border: 1px solid #ddd;
-    background-color: #f8f8f8;
+    border: 1px solid $border-color;
     padding: 10px;
   }
   
   .weekday-title {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: $text-s;
     margin-bottom: 10px;
+    color: $text-sec-color;
   }
   
   .slots-deck {
@@ -35,5 +33,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .time {
+        font-size: $text-xs;
+    }
+
+    .capacity {
+        font-size: $text-s;
+    }
   }
+
+
   
