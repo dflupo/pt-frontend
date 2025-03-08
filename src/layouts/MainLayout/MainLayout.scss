@@ -1,0 +1,19 @@
+.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr; // Sidebar + Contenuto principale
+  height: 100vh; // Occupa tutta l'altezza della viewport
+
+  .sidebar {
+    background-color: #222;
+    color: white;
+    padding: 20px;
+    border-right: 1px solid #ebebeb;
+  }
+
+  .content {
+    background-color: #f8f9fa;
+    padding: 20px;
+    overflow-y: auto;
+  }
+}
+

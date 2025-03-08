@@ -1,0 +1,39 @@
+.slots-handler {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); // 7 colonne uguali
+    gap: 10px; // Spaziatura tra i giorni
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .weekday {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+    padding: 10px;
+  }
+  
+  .weekday-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .slots-deck {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .slot {
+    background-color: white;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
