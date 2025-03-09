@@ -2,15 +2,29 @@
 $primary-color: #007bff;
 $secondary-color: #6c757d;
 $background-color: #f8f9fa;
+
 $text-color: #333;
-$text-sec-color: #969696;
+$text-sec-color: #676767;
+$text-trd-color: #969696;
 $border-color: #EBEBEB;
+
+$success-text: #006800;
+$success-bg: #b3ffb3;
+
+$warning-text: #684611;
+$warning-bg: #fbd89e;
+
+$danger-text: #580c0c;
+$danger-bg: #fcbbbb;
 
 // 📏 Font sizes
 $text-xs: 13px;
 $text-s: 14px;
 $text-m: 16px;
 $text-large: 20px;
+
+// Border Radius
+$br-l: 20px;
 
 // 📐 Spaziature
 $spacing-small: 8px;

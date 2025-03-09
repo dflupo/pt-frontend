@@ -1,0 +1,52 @@
+@import '../../styles/variables';
+
+.users-table table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ebebeb;
+
+  th,
+  td {
+    border: 1px solid #ebebeb;
+    padding: 15px 10px;
+    text-align: left;
+  }
+
+  th {
+    font-size: $text-m;
+    font-weight: normal;
+  }
+
+  td {
+    font-size: $text-s;
+    color: $text-sec-color;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #fff;
+  }
+
+  td span {
+    padding: 5px 15px;
+    border-radius: 100px;
+  }
+
+  td .active {
+    background-color: $success-bg;
+    color: $success-text;
+  }
+
+  td .expiring {
+    background-color: $warning-bg;
+    color: $warning-text;
+  }
+
+  td .expired {
+    background-color: $danger-bg;
+    color: $danger-text;
+  }
+}
