@@ -1,5 +1,7 @@
 import './UsersTable.scss'
 
+import ProgressBar from '../ProgressBar/ProgressBar'
+
 export default function UsersTable() {
 
     return (
@@ -23,7 +25,7 @@ export default function UsersTable() {
                         <td>22 Anni</td>
                         <td>10/03/2024</td>
                         <td className='status'><span className='active'>Attivo 🟢</span></td>
-                        <td>Obiettivoooo</td>
+                        <td><ProgressBar progress={70} /></td>
                         <td>+5%</td>
                         <td>2 Settimane fa</td>
                     </tr>
@@ -33,7 +35,7 @@ export default function UsersTable() {
                         <td>22 Anni</td>
                         <td>10/03/2024</td>
                         <td className='status'><span className='expiring'>In Scadenza 🟡</span></td>
-                        <td>Obiettivoooo</td>
+                        <td><ProgressBar progress={45} /></td>
                         <td>+5%</td>
                         <td>2 Settimane fa</td>
                     </tr>
