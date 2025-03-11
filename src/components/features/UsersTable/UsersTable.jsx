@@ -7,7 +7,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 export default function UsersTable() {
-    // Ora possiamo utilizzare direttamente clients dall'hook, che è sempre un array
     const { clients: users, loading, error, fetchClients, clientsMetadata } = useClients();
     const navigate = useNavigate();
 
