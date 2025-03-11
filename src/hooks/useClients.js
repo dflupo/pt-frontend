@@ -3,6 +3,11 @@ import { clientsAPI } from '../api/clients';
 
 export default function useClients() {
   const [clients, setClients] = useState([]);
+  const [clientsMetadata, setClientsMetadata] = useState({
+    total: 0,
+    limit: 0,
+    offset: 0
+  });
   const [selectedClient, setSelectedClient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,12 +17,32 @@ export default function useClients() {
     setLoading(true);
     setError(null);
     try {
-      const data = await clientsAPI.getAllClients(filters);
-      setClients(data);
-      return data;
+      const response = await clientsAPI.getAllClients(filters);
+      
+      // Gestisci sia il caso in cui la risposta sia un array diretto che un oggetto con la proprietà 'clients'
+      if (Array.isArray(response)) {
+        setClients(response);
+        setClientsMetadata({ total: response.length, limit: 0, offset: 0 });
+      } else if (response && Array.isArray(response.clients)) {
+        // Estrai l'array clients e i metadati dalla risposta
+        setClients(response.clients);
+        setClientsMetadata({
+          total: response.total || response.clients.length,
+          limit: response.limit || 0,
+          offset: response.offset || 0
+        });
+      } else {
+        // Caso di emergenza se il formato non è riconosciuto
+        console.warn('Formato risposta API inatteso:', response);
+        setClients([]);
+        setClientsMetadata({ total: 0, limit: 0, offset: 0 });
+      }
+      
+      return response;
     } catch (err) {
       setError(err.message || 'Errore durante il caricamento dei clienti');
-      return [];
+      setClients([]);
+      return { clients: [] };
     } finally {
       setLoading(false);
     }
@@ -106,6 +131,7 @@ export default function useClients() {
 
   return {
     clients,
+    clientsMetadata,
     selectedClient,
     loading,
     error,

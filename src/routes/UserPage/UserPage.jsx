@@ -1,42 +1,35 @@
-import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import { clientsAPI } from '../../api/clients';
 import './UserPage.scss';
+import { useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import { useClients } from '../../hooks';
 
 export default function UserPage() {
-  const { name } = useParams(); // Ottiene il nome dall'URL
+  const { name } = useParams(); // Get the name from URL
   const location = useLocation();
-  const userId = location.state?.userId; // Ottiene l'ID utente passato nello state
+  const userId = location.state?.userId; // Get the user ID from location state
   
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Use the clients hook instead of direct API calls
+  const { 
+    selectedClient: user, 
+    fetchClientById, 
+    loading, 
+    error 
+  } = useClients();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
-        
-        // Se abbiamo l'ID utente, usiamo quello (più affidabile)
-        if (userId) {
-          const userData = await clientsAPI.getClientById(userId);
-          setUser(userData);
-        } else {
-          // Altrimenti dovremmo fare una ricerca per nome
-          // Questo dipende da come è strutturata la tua API
-          console.warn('User ID non disponibile, impossibile caricare i dettagli dell\'utente');
-          setError('Impossibile caricare i dettagli dell\'utente');
-        }
-      } catch (err) {
-        console.error('Errore durante il caricamento dei dettagli dell\'utente:', err);
-        setError('Si è verificato un errore durante il caricamento dei dettagli dell\'utente');
-      } finally {
-        setLoading(false);
+    const loadUserData = async () => {
+      // If we have the user ID, use it (more reliable)
+      if (userId) {
+        await fetchClientById(userId);
+      } else {
+        // Otherwise, we should search by name
+        // This depends on how your API is structured
+        console.warn('User ID not available, cannot load user details');
       }
     };
 
-    fetchUserData();
-  }, [userId, name]);
+    loadUserData();
+  }, [userId, name, fetchClientById]);
 
   if (loading) return <div className="user-page-loading">Caricamento dettagli utente...</div>;
   if (error) return <div className="user-page-error">{error}</div>;
@@ -73,12 +66,12 @@ export default function UserPage() {
           <div className="info-row">
             <span className="label">Iscritto dal:</span>
             <span className="value">
-              {user.join_date ? new Date(user.join_date).toLocaleDateString('it-IT') : 'Non specificata'}
+              {user.first_subscription_date ? new Date(user.first_subscription_date).toLocaleDateString('it-IT') : 'Non specificata'}
             </span>
           </div>
         </div>
 
-        {/* Altri riquadri con informazioni sull'utente */}
+        {/* Other user information cards */}
         {/* ... */}
       </div>
     </div>

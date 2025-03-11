@@ -1,44 +1,42 @@
+import './LoginForm.scss';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authAPI } from '../../../api/auth';
-import './LoginForm.scss';
+import { useAuth } from '../../../hooks';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
   const navigate = useNavigate();
+  
+  // Use the auth hook for login functionality
+  const { login, loading, error } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validazione base
+    // Basic validation
     if (!email || !password) {
-      setError('Per favore inserisci email e password');
+      setFormError('Per favore inserisci email e password');
       return;
     }
 
     try {
-      setError('');
-      setLoading(true);
+      setFormError('');
       
-      const response = await authAPI.login(email, password);
+      // Use the login function from the hook
+      const user = await login(email, password);
       
-      // Se il login ha successo, reindirizza alla dashboard
-      if (response && response.access_token) {
-        // Garantisci che il token sia correttamente impostato per RouteGuard
-        localStorage.setItem('authToken', response.access_token);
+      // If login is successful, redirect to dashboard
+      if (user) {
         navigate('/dashboard', { replace: true });
       }
     } catch (err) {
       console.error('Errore durante il login:', err);
-      setError(
-        err.response?.data?.message || 
+      setFormError(
+        err.response?.data?.detail || 
         'Impossibile effettuare il login. Verifica le tue credenziali.'
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -47,7 +45,10 @@ export default function LoginForm() {
       <form className="login-form" onSubmit={handleSubmit}>
         <h2>Accedi</h2>
         
-        {error && <div className="error-message">{error}</div>}
+        {/* Show error from form validation or from the hook */}
+        {(formError || error) && (
+          <div className="error-message">{formError || error}</div>
+        )}
         
         <div className="form-group">
           <label htmlFor="email">Email</label>

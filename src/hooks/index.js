@@ -10,7 +10,6 @@ import useGoals from './useGoals';
 import useMealPlans from './useMealPlans';
 import useStaff from './useStaff';
 import useUsers from './useUsers';
-import useTheme from './useTheme';
 
 export {
   useAuth,
@@ -23,5 +22,4 @@ export {
   useMealPlans,
   useStaff,
   useUsers,
-  useTheme
 };
