@@ -2,8 +2,10 @@ import './UserPage.scss';
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useClients, useGoals, useWorkoutPlans, useSubscriptions, useMealPlans } from '../../hooks';
+import { useOutletContext } from 'react-router-dom';
 
 export default function UserPage() {
+  const { TopBar } = useOutletContext();
   const { name } = useParams(); // Get the name from URL
   const location = useLocation();
   const userId = location.state?.userId; // Get the user ID from location state
@@ -100,10 +102,15 @@ export default function UserPage() {
   if (userError) return <div className="user-page-error">{userError}</div>;
   if (!user) return <div className="user-not-found">Utente non trovato</div>;
 
+
+
   return (
     <div className="user-page">
-      <header className="user-header">
+      <TopBar title={`Pagina Utente`} />
+      <div className="user-header">
+
         <h1>{user.first_name} {user.last_name}</h1>
+        
         <div className="user-badges">
           {subscriptions && subscriptions.length > 0 && (
             <span className={`subscription-badge ${subscriptions[0].payment_status === 'pagato' ? 'active' : 'expired'}`}>
@@ -111,7 +118,7 @@ export default function UserPage() {
             </span>
           )}
         </div>
-      </header>
+      </div>
 
       <div className="user-info-grid">
         {/* Informazioni personali */}
