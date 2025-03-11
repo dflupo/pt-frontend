@@ -1,88 +1,179 @@
 import api from './axiosConfig';
 
 export const subscriptionsAPI = {
+  // Subscription types
   getAllSubscriptions: async () => {
     try {
-      const response = await api.get('/subscriptions');
+      const response = await api.get('/subscriptions', {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error('Get all subscriptions error:', error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
   getSubscriptionById: async (subscriptionId) => {
     try {
-      const response = await api.get(`/subscriptions/${subscriptionId}`);
+      const response = await api.get(`/subscriptions/${subscriptionId}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error(`Get subscription ${subscriptionId} error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
   createSubscription: async (subscriptionData) => {
     try {
-      const response = await api.post('/subscriptions', subscriptionData);
+      const response = await api.post('/subscriptions', subscriptionData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error('Create subscription error:', error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
   updateSubscription: async (subscriptionId, subscriptionData) => {
     try {
-      const response = await api.put(`/subscriptions/${subscriptionId}`, subscriptionData);
+      const response = await api.put(`/subscriptions/${subscriptionId}`, subscriptionData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error(`Update subscription ${subscriptionId} error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
   deleteSubscription: async (subscriptionId) => {
     try {
-      const response = await api.delete(`/subscriptions/${subscriptionId}`);
+      const response = await api.delete(`/subscriptions/${subscriptionId}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error(`Delete subscription ${subscriptionId} error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
-  // Gestione piani di abbonamento
+  // Subscription plans
   getSubscriptionPlans: async (subscriptionId) => {
     try {
-      const response = await api.get(`/subscriptions/${subscriptionId}/plans`);
+      const response = await api.get(`/subscriptions/${subscriptionId}/plans`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error(`Get subscription plans error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
   createSubscriptionPlan: async (subscriptionId, planData) => {
     try {
-      const response = await api.post(`/subscriptions/${subscriptionId}/plans`, planData);
+      const response = await api.post(`/subscriptions/${subscriptionId}/plans`, planData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error('Create subscription plan error:', error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
-  // Gestione abbonamenti cliente
-  assignSubscriptionToClient: async (clientId, subscriptionData) => {
+  updateSubscriptionPlan: async (planId, planData) => {
     try {
-      const response = await api.post('/client-subscriptions', {
-        client_id: clientId,
-        ...subscriptionData
+      const response = await api.put(`/subscription-plans/${planId}`, planData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
       return response.data;
     } catch (error) {
+      console.error(`Update subscription plan ${planId} error:`, error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  deleteSubscriptionPlan: async (planId) => {
+    try {
+      const response = await api.delete(`/subscription-plans/${planId}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Delete subscription plan ${planId} error:`, error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  // Client subscriptions
+  assignSubscriptionToClient: async (subscriptionData) => {
+    try {
+      const response = await api.post('/client-subscriptions', subscriptionData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Assign subscription to client error:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  getClientSubscriptions: async (clientId) => {
+    try {
+      const response = await api.get(`/client-subscriptions/${clientId}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Get client subscriptions error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
   updateClientSubscription: async (subscriptionId, updateData) => {
     try {
-      const response = await api.put(`/client-subscriptions/${subscriptionId}`, updateData);
+      const response = await api.put(`/client-subscriptions/${subscriptionId}`, updateData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
       return response.data;
     } catch (error) {
+      console.error(`Update client subscription ${subscriptionId} error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   }

@@ -16,7 +16,6 @@ export default function UsersTable() {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
-                // Chiamata all'API per ottenere tutti i clienti
                 const data = await clientsAPI.getAllClients();
                 console.log(data);
                 setUsers(data.clients);

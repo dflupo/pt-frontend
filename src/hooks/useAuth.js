@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { authAPI } from '../api/auth';
+import { usersAPI } from '../api/users';
 import { AuthContext } from '../contexts/AuthContext';
 
 export default function useAuth() {
@@ -13,11 +14,13 @@ export default function useAuth() {
     setError(null);
     try {
       const response = await authAPI.login(email, password);
-      setUser(response.user);
+      // After successful login, get the current user details
+      const userData = await usersAPI.getCurrentUser();
+      setUser(userData);
       setIsAuthenticated(true);
-      return response;
+      return userData;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to login');
+      setError(err.response?.data?.detail || 'Failed to login');
       throw err;
     } finally {
       setLoading(false);
@@ -32,7 +35,7 @@ export default function useAuth() {
       const response = await authAPI.register(userData);
       return response;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to register');
+      setError(err.response?.data?.detail || 'Failed to register');
       throw err;
     } finally {
       setLoading(false);
@@ -48,8 +51,8 @@ export default function useAuth() {
       setUser(null);
       setIsAuthenticated(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to logout');
-      // Anche in caso di errore, effettua il logout lato client
+      setError(err.response?.data?.detail || 'Failed to logout');
+      // Even if server logout fails, perform client-side logout
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -62,19 +65,19 @@ export default function useAuth() {
     setLoading(true);
     setError(null);
     try {
-      // Se il token non è presente, non siamo autenticati
-      if (!localStorage.getItem('authToken')) {
+      // If access token isn't present, we're not authenticated
+      if (!localStorage.getItem('access_token')) {
         setIsAuthenticated(false);
         setUser(null);
         return false;
       }
 
-      const userData = await authAPI.checkAuthStatus();
+      const userData = await usersAPI.getCurrentUser();
       setUser(userData);
       setIsAuthenticated(true);
       return true;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to verify authentication');
+      setError(err.response?.data?.detail || 'Failed to verify authentication');
       setUser(null);
       setIsAuthenticated(false);
       return false;
@@ -83,7 +86,7 @@ export default function useAuth() {
     }
   }, [setUser, setIsAuthenticated]);
 
-  // Verifica autenticazione all'avvio
+  // Verify authentication on startup
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);

@@ -9,10 +9,10 @@ const axiosInstance = axios.create({
   },
 });
 
-// Interceptor per aggiungere il token di autenticazione a ogni richiesta
+// Request interceptor to add the authentication token to each request
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,16 +21,22 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor per gestire errori comuni
+// Response interceptor to handle common errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // Gestione errori di autenticazione
+      // Handle authentication errors
       if (error.response.status === 401) {
-        localStorage.removeItem('authToken');
-        // Reindirizzamento alla pagina di login se necessario
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        // Redirect to login page if needed
         // window.location.href = '/login';
+      }
+      
+      // You can add other error handling as needed
+      if (error.response.status === 422) {
+        console.error('Validation Error:', error.response.data.detail);
       }
     }
     return Promise.reject(error);
