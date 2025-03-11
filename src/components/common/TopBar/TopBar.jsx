@@ -20,7 +20,6 @@ export default function TopBar({title}) {
                         aria-label="Torna indietro"
                     >
                         <MdChevronLeft size={24} />
-                        <span>Indietro</span>
                     </button>
                 </div>
                 

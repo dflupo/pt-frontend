@@ -1,0 +1,27 @@
+@import '../../../styles/variables.scss';
+
+.top-bar {
+    .inner {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            color: $text-sec-color;
+            background-color: $bg-sec-color;
+            border: none;
+            border-radius: $br-100;
+            padding: 5px;
+
+            &:hover {
+                cursor: pointer;
+                color: $text-color;
+                background-color: $bg-sec-hover-color;
+                transition: 500ms;
+            }
+        }
+
+    }
+}
