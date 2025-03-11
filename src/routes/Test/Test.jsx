@@ -1,4 +1,4 @@
-import UsersTable from "../../components/UsersTable/UsersTable"
+import UsersTable from "../../components/features/UsersTable/UsersTable"
 
 export default function Test() {
 

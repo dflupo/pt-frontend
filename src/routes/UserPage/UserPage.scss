@@ -1,0 +1,90 @@
+@import '../../styles/variables';
+
+.user-page {
+  padding: $spacing-large;
+  
+  .user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-large;
+    
+    h1 {
+      margin: 0;
+      font-size: $text-xxl;
+    }
+    
+    .subscription-badge {
+      padding: $spacing-small $spacing-medium;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: $text-s;
+      
+      &.active {
+        background-color: $success-bg;
+        color: $success-text;
+      }
+      
+      &.expiring {
+        background-color: $warning-bg;
+        color: $warning-text;
+      }
+      
+      &.expired {
+        background-color: $danger-bg;
+        color: $danger-text;
+      }
+    }
+  }
+  
+  .user-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: $spacing-large;
+    
+    .user-info-card {
+      background-color: white;
+      border-radius: $br-l;
+      padding: $spacing-large;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      
+      h2 {
+        margin-top: 0;
+        margin-bottom: $spacing-medium;
+        font-size: $text-large;
+        color: $text-color;
+      }
+      
+      .info-row {
+        display: flex;
+        margin-bottom: $spacing-small;
+        
+        .label {
+          flex: 0 0 120px;
+          font-weight: 600;
+          color: $text-sec-color; // Cambiato da $text-color-light a $text-sec-color
+        }
+        
+        .value {
+          flex: 1;
+          color: $text-color;
+        }
+      }
+    }
+  }
+}
+
+.user-page-loading,
+.user-page-error,
+.user-not-found {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: $text-large; // Cambiato da $text-l a $text-large
+  color: $text-sec-color; // Cambiato da $text-color-light a $text-sec-color
+}
+
+.user-page-error {
+  color: $danger-text; // Cambiato da $danger-color a $danger-text
+}
