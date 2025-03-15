@@ -11,10 +11,10 @@ export default function LoginPage() {
     // Controlla se esiste un token nel localStorage
     const token = localStorage.getItem('authToken');
     
-    if (token) {
-      // Se l'utente è già loggato, reindirizza alla dashboard
-      navigate('/dashboard');
-    }
+    // if (token) {
+    //   // Se l'utente è già loggato, reindirizza alla dashboard
+    //   navigate('/dashboard');
+    // }
   }, [navigate]);
 
   return (

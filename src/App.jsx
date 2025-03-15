@@ -9,6 +9,8 @@ import LoginPage from './routes/LoginPage/LoginPage';
 import ManageUsers from './routes/ManageUsers/ManageUsers';
 import UserPage from './routes/UserPage/UserPage';
 
+import ManageBookings from './routes/ManageBookings/ManageBookings';
+
 function App() {
   return (
     <Router>
@@ -21,15 +23,17 @@ function App() {
           <Route path="gestione-utenti" element={<ManageUsers />} />
           <Route path="users/:name" element={<UserPage />} />
 
+          <Route path="sala" element={<ManageBookings />} />
 
-          <Route index element={<Navigate to="/gestione-utenti" replace />} />
+
+          {/* <Route index element={<Navigate to="/gestione-utenti" replace />} /> */}
         </Route>
         
-        <Route path="*" element={
+        {/* <Route path="*" element={
           localStorage.getItem('authToken') 
             ? <Navigate to="/gestione-utenti" replace /> 
             : <Navigate to="/login" replace />
-        } />
+        } /> */}
       </Routes>
     </Router>
   );

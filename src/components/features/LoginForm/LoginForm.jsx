@@ -29,7 +29,7 @@ export default function LoginForm() {
       
       // If login is successful, redirect to dashboard
       if (user) {
-        navigate('/dashboard', { replace: true });
+        navigate('/gestione-utenti', { replace: true });
       }
     } catch (err) {
       console.error('Errore durante il login:', err);
