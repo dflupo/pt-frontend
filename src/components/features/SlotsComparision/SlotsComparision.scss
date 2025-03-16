@@ -1,0 +1,61 @@
+@use '../../../styles/variables' as *;
+
+.comparision {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 23px;
+    grid-row-gap: 0px;
+
+    .col-1 { grid-area: 1 / 1 / 2 / 2; }
+    .col-2 { grid-area: 1 / 2 / 2 / 3; }
+    .col-3 { grid-area: 1 / 3 / 2 / 4; }
+  }
+
+  .comparision-card {
+    border: 1px solid $border-color;
+    border-radius: $br-m;
+    padding: 20px;
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      .title h4 {margin: 0;}
+
+      .capability {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        p {margin: 0;}
+      }
+
+      .free {
+        background-color: $success-bg;
+        color: $success-text;
+        padding: 5px 15px;
+        border-radius: $br-100;
+      }
+    }
+
+    .users {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+
+      .user {
+        display: flex; align-items: center;
+        background-color: $bg-sec-color; 
+        padding: 5px 0px;
+        border-radius: $br-xs;
+        
+        h5 {margin: 0; font-weight: normal; padding: 0 15px 0 5px }
+
+        .drag {color: $text-trd-color; display: flex; align-items: center;}
+      }
+    }
+}
