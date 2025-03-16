@@ -21,19 +21,13 @@ function App() {
         <Route path="/" element={<RouteGuard><MainLayout /></RouteGuard>}>
 
           <Route path="gestione-utenti" element={<ManageUsers />} />
-          <Route path="users/:name" element={<UserPage />} />
+          <Route path="utenti/:name" element={<UserPage />} />
 
-          <Route path="sala" element={<ManageBookings />} />
+          <Route path="gestione-sala" element={<ManageBookings />} />
 
 
-          {/* <Route index element={<Navigate to="/gestione-utenti" replace />} /> */}
         </Route>
         
-        {/* <Route path="*" element={
-          localStorage.getItem('authToken') 
-            ? <Navigate to="/gestione-utenti" replace /> 
-            : <Navigate to="/login" replace />
-        } /> */}
       </Routes>
     </Router>
   );
