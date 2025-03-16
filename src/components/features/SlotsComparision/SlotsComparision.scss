@@ -2,7 +2,7 @@
 
 .comparision {
     display: grid;
-    grid-template-columns: 2fr 1fr 2fr;
+    grid-template-columns: 3fr 1fr 3fr;
     grid-template-rows: 1fr;
     grid-column-gap: 23px;
     grid-row-gap: 0px;
@@ -23,14 +23,15 @@
       align-items: center;
       margin-bottom: 20px;
 
-      .title h4 {margin: 0;}
+      .title h4 {margin: 0; font-size: $text-m;}
 
       .capability {
         display: flex;
         align-items: center;
         gap: 8px;
 
-        p {margin: 0;}
+        p {margin: 0; font-size: $text-s;}
+        .capability-icon {font-size: 20px; display: flex; align-items: center;}
       }
 
       .free {
@@ -43,7 +44,7 @@
 
     .users {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       gap: 15px;
       flex-wrap: wrap;
 
@@ -55,7 +56,7 @@
         
         h5 {margin: 0; font-weight: normal; padding: 0 15px 0 5px }
 
-        .drag {color: $text-trd-color; display: flex; align-items: center;}
+        .drag {color: $text-trd-color; display: flex; align-items: center; font-size: 25px;}
       }
     }
 }

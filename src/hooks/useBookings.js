@@ -251,10 +251,12 @@ export default function useBookings() {
     setLoading(true);
     setError(null);
     try {
+      // Usa l'endpoint corretto per ottenere le prenotazioni dello slot
       const bookings = await bookingsAPI.getSlotBookings(slotId);
       return bookings;
     } catch (err) {
       setError(err.response?.data?.detail || 'Error loading slot bookings');
+      console.error(`Error fetching bookings for slot ${slotId}:`, err);
       return [];
     } finally {
       setLoading(false);
@@ -412,6 +414,8 @@ export default function useBookings() {
     }
   }, [fetchSlots]);
 
+
+  
   return {
     // State
     slots,
