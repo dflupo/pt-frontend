@@ -21,7 +21,7 @@ function App() {
         <Route path="/" element={<RouteGuard><MainLayout /></RouteGuard>}>
 
           <Route path="gestione-utenti" element={<ManageUsers />} />
-          <Route path="utenti/:name" element={<UserPage />} />
+          <Route path="gestione-utenti/:name" element={<UserPage />} />
 
           <Route path="gestione-sala" element={<ManageBookings />} />
 

@@ -71,7 +71,7 @@ export default function UsersTable() {
     // Funzione per gestire il click sulla riga
     const handleRowClick = (user) => {
         const nameUrl = formatNameForUrl(user.first_name, user.last_name);
-        navigate(`/users/${nameUrl}`, { state: { userId: user.id } });
+        navigate(`/gestione-utenti/${nameUrl}`, { state: { userId: user.id } });
     };
 
     if (loading) return <div className="users-table-loading">Caricamento utenti...</div>;
