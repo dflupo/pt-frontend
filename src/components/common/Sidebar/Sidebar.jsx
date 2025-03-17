@@ -7,7 +7,7 @@ import useAuth from '../../../hooks/useAuth';
 export default function Sidebar() {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation(); // Hook per ottenere la location corrente
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
