@@ -1,12 +1,13 @@
 import './Sidebar.scss'
-import { Link, useNavigate } from "react-router-dom";
-import { MdHome, MdPeople, MdEventSeat, MdLogout } from "react-icons/md";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { MdHome, MdPeople, MdFitnessCenter, MdLogout } from "react-icons/md";
 import Logo from '../../../assets/Logo.svg'
 import useAuth from '../../../hooks/useAuth';
 
 export default function Sidebar() {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation(); // Hook per ottenere la location corrente
 
   const handleLogout = async () => {
     try {
@@ -17,6 +18,11 @@ export default function Sidebar() {
     }
   };
 
+  // Funzione per verificare se il link è attivo
+  const isActive = (path) => {
+    return location.pathname === path ? 'active' : '';
+  };
+
   return (
     <div className="sidebar">
       <div className="logo-container">
@@ -24,16 +30,16 @@ export default function Sidebar() {
       </div>
       
       <nav className="main-nav">
-        <Link to="/">
+        <Link to="/" className={isActive('/')}>
           <MdHome className="nav-icon" />
           <span>Home</span>
         </Link>
-        <Link to="/gestione-utenti">
+        <Link to="/gestione-utenti" className={isActive('/gestione-utenti')}>
           <MdPeople className="nav-icon" />
           <span>Clienti</span>
         </Link>
-        <Link to="/gestione-sala">
-          <MdEventSeat className="nav-icon" />
+        <Link to="/gestione-sala" className={isActive('/gestione-sala')}>
+          <MdFitnessCenter className="nav-icon" />
           <span>Sala e Turni</span>
         </Link>
       </nav>

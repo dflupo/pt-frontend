@@ -19,7 +19,7 @@ export default function App() {
         <Router>
           <ToastContainer />
           <Routes>
-            {/* Rotte pubbliche */}
+            
             <Route path="/login" element={<LoginPage />} />
             
             <Route path="/" element={<RouteGuard><MainLayout /></RouteGuard>}>
