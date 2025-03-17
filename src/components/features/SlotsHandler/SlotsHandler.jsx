@@ -13,7 +13,6 @@ export default function SlotsHandler({
   onSlotSelect,
   selectedSlots
 }) {
-  const [viewMode, setViewMode] = useState('week'); // 'week' o 'month'
   const [weeklySlots, setWeeklySlots] = useState([]);
   
   // Funzione per formattare la data per la visualizzazione del titolo della settimana
@@ -100,7 +99,6 @@ export default function SlotsHandler({
   return (
     <div className="slots-handler">
       <div className="control-bar">
-        
         <div className="week-selector">
           <button 
             className="nav-button" 
@@ -136,28 +134,51 @@ export default function SlotsHandler({
         <div className="error-message">{error}</div>
       ) : (
         <div className="weekdays-deck">
-          {weeklySlots.map((weekday, index) => (
-            <div id={`w${index + 1}`} key={index} className="weekday">
-              <div className="weekday-title">{weekday.formattedTitle}</div>
-              <div className="slots-deck">
-                {weekday.slots.length > 0 ? (
-                  weekday.slots.map(slot => (
-                    <div 
-                      key={slot.id} 
-                      className={`slot ${slot.booked_count >= slot.max_capacity ? 'full' : ''} ${isSlotSelected(slot.id) ? 'selected' : ''}`}
-                      onClick={() => onSlotSelect(slot)}
-                    >
-                      <span className="time">{slot.start_time.substring(0, 5)} - {slot.end_time.substring(0, 5)}</span>
-                      <span className="capacity">{slot.booked_count}/{slot.max_capacity}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-slots"></div>
-                )}
-              </div>
+            {weeklySlots.map((weekday, index) => (
+                <div id={`w${index + 1}`} key={index} className="weekday">
+                <div className="weekday-title">{weekday.formattedTitle}</div>
+                <div className="slots-deck">
+                    {weekday.slots.length > 0 ? (
+                    weekday.slots.map(slot => {
+                        // Determine the current status of the slot
+                        const now = new Date();
+                        const slotDate = new Date(weekday.date);
+                        const [hours, minutes] = slot.end_time.split(':');
+                        slotDate.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+                        
+                        // Calculate if the slot is gone (in the past)
+                        const isGone = slotDate < now;
+                        
+                        // Calculate capacity status
+                        const isFull = slot.booked_count >= slot.max_capacity;
+                        const isAlmostFull = !isFull && slot.booked_count >= slot.max_capacity * 0.8;
+                        const isFree = slot.booked_count < slot.max_capacity * 0.8;
+                        
+                        // Build the class name
+                        let statusClass = '';
+                        if (isGone) statusClass = 'gone';
+                        else if (isFull) statusClass = 'full';
+                        else if (isAlmostFull) statusClass = 'almost-full';
+                        else if (isFree) statusClass = 'free';
+                        
+                        return (
+                        <div 
+                            key={slot.id} 
+                            className={`slot ${statusClass} ${isSlotSelected(slot.id) ? 'selected' : ''}`}
+                            onClick={() => onSlotSelect(slot)}
+                        >
+                            <span className="time">{slot.start_time.substring(0, 5)} - {slot.end_time.substring(0, 5)}</span>
+                            <span className="capacity">{slot.booked_count}/{slot.max_capacity}</span>
+                        </div>
+                        );
+                    })
+                    ) : (
+                    <div className="no-slots"></div>
+                    )}
+                </div>
+                </div>
+            ))}
             </div>
-          ))}
-        </div>
       )}
     </div>
   );

@@ -29,7 +29,6 @@
   background-color: white;
   padding: 8px;
   border-radius: 5px;
-  border: 1px solid $border-color;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -43,6 +42,23 @@
   .capacity {
       font-size: $text-s;
   }
+}
+
+.slot.gone {
+  background-color: $bg-sec-color;
+  color: $text-trd-color;
+}
+.slot.full {
+  background-color: $danger-bg;
+  color: $danger-text;
+}
+.slot.almost-full {
+  background-color: $warning-bg;
+  color: $warning-text;
+}
+.slot.free {
+  background-color: $success-bg;
+  color: $success-text;
 }
 
 .week-selector{

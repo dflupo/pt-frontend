@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './ManageBookings.scss';
 import TopBar from '../../components/common/TopBar/TopBar';
 import SlotsHandler from '../../components/features/SlotsHandler/SlotsHandler';
@@ -13,10 +13,10 @@ export default function ManageBookings() {
     error, 
     fetchSlots,
     fetchSlotById, 
-    fetchSlotBookings 
+    fetchSlotBookings,
+    moveBooking // Importiamo moveBooking dall'hook useBookings
   } = useBookings();
   
-    
   const [slotLoading, setSlotLoading] = useState(false);
 
   // Stato per la navigazione settimanale (condiviso tra i componenti)
@@ -67,47 +67,90 @@ export default function ManageBookings() {
     setCurrentWeekEnd(getEndOfWeek(newStart));
   };
 
+  // Funzione per gestire la selezione degli slot
+  const handleSlotSelect = async (slot) => {
+    try {
+      setSlotLoading(true); // Usa lo stato locale per il caricamento
+      console.log("Slot selezionato:", slot);
+      
+      // Recupera le prenotazioni dello slot usando l'endpoint corretto
+      const bookings = await fetchSlotBookings(slot.id);
+      console.log("Prenotazioni recuperate:", bookings);
+      
+      // Crea una copia dettagliata dello slot con le prenotazioni
+      const detailedSlot = { 
+        ...slot, 
+        bookings: bookings || [] 
+      };
+      
+      setSelectedSlots(prevSelected => {
+        // Se lo slot è già selezionato, lo deselezioniamo
+        if (prevSelected[0]?.id === slot.id) {
+          return [null, prevSelected[1]];
+        } else if (prevSelected[1]?.id === slot.id) {
+          return [prevSelected[0], null];
+        }
+        
+        // Altrimenti, aggiungiamo lo slot nella prima posizione libera
+        if (prevSelected[0] === null) {
+          return [detailedSlot, prevSelected[1]];
+        } else if (prevSelected[1] === null) {
+          return [prevSelected[0], detailedSlot];
+        } else {
+          // Se entrambe le posizioni sono occupate, sostituiamo la prima
+          return [detailedSlot, prevSelected[1]];
+        }
+      });
+    } catch (err) {
+      console.error("Errore nel caricamento dei dettagli dello slot:", err);
+    } finally {
+      setSlotLoading(false); // Ripristina lo stato al termine
+    }
+  };
+  
+  // Wrapper per la funzione moveBooking
+  const handleMoveBooking = useCallback(async (userId, fromSlotId, toSlotId) => {
+    console.log(`Tentativo di spostamento: utente ${userId} da slot ${fromSlotId} a slot ${toSlotId}`);
+    try {
+      // Verifica che moveBooking sia una funzione
+      if (typeof moveBooking !== 'function') {
+        console.error('moveBooking non è una funzione valida');
+        throw new Error('Funzione moveBooking non disponibile');
+      }
 
-// Funzione per gestire la selezione degli slot
-const handleSlotSelect = async (slot) => {
-  try {
-    setSlotLoading(true); // Usa lo stato locale per il caricamento
-    console.log("Slot selezionato:", slot);
-    
-    // Recupera le prenotazioni dello slot usando l'endpoint corretto
-    const bookings = await fetchSlotBookings(slot.id);
-    console.log("Prenotazioni recuperate:", bookings);
-    
-    // Crea una copia dettagliata dello slot con le prenotazioni
-    const detailedSlot = { 
-      ...slot, 
-      bookings: bookings || [] 
-    };
-    
-    setSelectedSlots(prevSelected => {
-      // Se lo slot è già selezionato, lo deselezioniamo
-      if (prevSelected[0]?.id === slot.id) {
-        return [null, prevSelected[1]];
-      } else if (prevSelected[1]?.id === slot.id) {
-        return [prevSelected[0], null];
+      // Chiamata all'API per spostare la prenotazione
+      await moveBooking(userId, fromSlotId, toSlotId);
+      console.log('Spostamento completato con successo');
+      
+      // Aggiorna gli slot selezionati dopo lo spostamento
+      if (selectedSlots[0]?.id === fromSlotId || selectedSlots[0]?.id === toSlotId) {
+        const updatedSlot = await fetchSlotById(selectedSlots[0].id);
+        const bookings = await fetchSlotBookings(selectedSlots[0].id);
+        const detailedSlot = { ...updatedSlot, bookings: bookings || [] };
+        
+        setSelectedSlots(prev => [detailedSlot, prev[1]]);
       }
       
-      // Altrimenti, aggiungiamo lo slot nella prima posizione libera
-      if (prevSelected[0] === null) {
-        return [detailedSlot, prevSelected[1]];
-      } else if (prevSelected[1] === null) {
-        return [prevSelected[0], detailedSlot];
-      } else {
-        // Se entrambe le posizioni sono occupate, sostituiamo la prima
-        return [detailedSlot, prevSelected[1]];
+      if (selectedSlots[1]?.id === fromSlotId || selectedSlots[1]?.id === toSlotId) {
+        const updatedSlot = await fetchSlotById(selectedSlots[1].id);
+        const bookings = await fetchSlotBookings(selectedSlots[1].id);
+        const detailedSlot = { ...updatedSlot, bookings: bookings || [] };
+        
+        setSelectedSlots(prev => [prev[0], detailedSlot]);
       }
-    });
-  } catch (err) {
-    console.error("Errore nel caricamento dei dettagli dello slot:", err);
-  } finally {
-    setSlotLoading(false); // Ripristina lo stato al termine
-  }
-};
+      
+      // Aggiorna anche l'elenco completo degli slot
+      const filters = {
+        start_date: formatDateForAPI(currentWeekStart),
+        end_date: formatDateForAPI(currentWeekEnd)
+      };
+      await fetchSlots(filters);
+      
+    } catch (error) {
+      console.error('Errore durante lo spostamento della prenotazione:', error);
+      throw error; // Rilancia l'errore per gestirlo nel componente figlio
+    }
+  }, [moveBooking, selectedSlots, fetchSlotById, fetchSlotBookings, fetchSlots, currentWeekStart, currentWeekEnd]);
   
   // Funzione per processare gli slot per renderli compatibili con i componenti
   const processSlots = (slotsData) => {
@@ -153,13 +196,19 @@ const handleSlotSelect = async (slot) => {
     setProcessedSlots(processed);
   }, [slots]);
 
+  // Debug - verifica che moveBooking sia disponibile
+  useEffect(() => {
+    console.log('moveBooking disponibile:', typeof moveBooking === 'function');
+  }, [moveBooking]);
+
   return (
     <div className="manage-bookings">
-      <TopBar title="Manage Bookings" />
+      <TopBar title="Gestione Prenotazioni" />
 
       <div className="comparision-container">
         <SlotsComparision 
-          selectedSlots={selectedSlots} 
+          selectedSlots={selectedSlots}
+          moveBooking={handleMoveBooking} // Passiamo la funzione wrapper
         />
       </div>
 

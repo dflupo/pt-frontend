@@ -29,17 +29,30 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        padding: 5px 15px;
+        border-radius: $br-100;
 
         p {margin: 0; font-size: $text-s;}
         .capability-icon {font-size: 20px; display: flex; align-items: center;}
       }
 
-      .free {
+      .capability.gone {
+        background-color: $bg-sec-color;
+        color: $text-trd-color;
+      }
+      .capability.full {
+        background-color: $danger-bg;
+        color: $danger-text;
+      }
+      .capability.almost-full {
+        background-color: $warning-bg;
+        color: $warning-text;
+      }
+      .capability.free {
         background-color: $success-bg;
         color: $success-text;
-        padding: 5px 15px;
-        border-radius: $br-100;
       }
+
     }
 
     .users {
@@ -59,4 +72,50 @@
         .drag {color: $text-trd-color; display: flex; align-items: center; font-size: 25px;}
       }
     }
+}
+
+.selected {font-weight: bold;}
+.selected.gone{border: 2px solid $text-trd-color;}
+.selected.full{border: 2px solid $danger-text;}
+.selected.almost-full{border: 2px solid $warning-text;}
+.selected.free{border: 2px solid $success-text;}
+
+
+/* Questo file contiene solo gli stili aggiuntivi da aggiungere al tuo SlotsComparision.scss esistente */
+
+.comparision {
+  /* Stili già esistenti... */
+  
+  .user {
+    /* Stili già esistenti per user... */
+    cursor: grab;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    &:active {
+      cursor: grabbing;
+      transform: scale(0.98);
+    }
+    
+    /* Stile per l'utente appena spostato */
+    &.moved {
+      background-color: rgba(0, 200, 83, 0.2);
+      border-left: 3px solid #00c853;
+    }
+    
+    .drag {
+      cursor: grab;
+    }
+  }
+  
+  /* Stile quando si trascina sopra una card */
+  .comparision-card {
+    &.drag-over {
+      border: 2px dashed #2196F3;
+      background-color: rgba(33, 150, 243, 0.05);
+    }
+  }
 }
