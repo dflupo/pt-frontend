@@ -4,7 +4,7 @@ import { usersAPI } from '../api/users';
 import { AuthContext } from '../contexts/AuthContext';
 
 export default function useAuth() {
-  const { user, setUser, isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const { user, setUser, isAuthenticated, setIsAuthenticated, loadingUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -69,12 +69,15 @@ export default function useAuth() {
       await authAPI.logout();
       setUser(null);
       setIsAuthenticated(false);
+      // Assicurati di rimuovere l'ID utente al logout
+      localStorage.removeItem('user_id');
     } catch (err) {
       const errorMessage = err.response?.data?.detail || 'Failed to logout';
       setError(typeof errorMessage === 'string' ? errorMessage : 'Logout error occurred');
       // Anche se il logout lato server fallisce, eseguiamo comunque il logout lato client
       setUser(null);
       setIsAuthenticated(false);
+      localStorage.removeItem('user_id');
     } finally {
       setLoading(false);
     }
@@ -89,7 +92,7 @@ export default function useAuth() {
   return {
     user,
     isAuthenticated,
-    loading,
+    loading: loading || loadingUser,
     error,
     login,
     register,

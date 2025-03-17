@@ -4,6 +4,7 @@
   width: 100%;
   border-collapse: collapse;
   border: 1px solid #ebebeb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
   th,
   td {
@@ -15,6 +16,8 @@
   th {
     font-size: $text-m;
     font-weight: normal;
+    position: relative;
+    background-color: #f6f6f6;
   }
 
   td {
@@ -33,6 +36,7 @@
   td span {
     padding: 5px 15px;
     border-radius: 100px;
+    transition: all 0.25s ease;
   }
 
   td .active {
@@ -52,11 +56,27 @@
 
   .clickable-row {
     cursor: pointer;
-    transition: background-color 0.2s;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     
     &:hover {
-      background-color: rgba(74, 144, 226, 0.1);
+      background-color: #fff !important;
+      color: $text-color;
+      transform: scale(1.03);
+            
+      td {
+        color: $text-sec-color;
+      }
+      
+      td span {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+      }
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      transition: all 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
   }
-
 }

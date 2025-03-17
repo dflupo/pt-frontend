@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import useAuth from '../../hooks/useAuth';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const RouteGuard = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loadingUser } = useContext(AuthContext);
   const location = useLocation();
 
   useEffect(() => {
     // Se l'utente non è autenticato e non siamo in fase di caricamento
-    if (!isAuthenticated && !loading) {
+    if (!isAuthenticated && !loadingUser) {
       // Mostra un messaggio toast
       toast.info("Devi effettuare l'accesso per visualizzare questa pagina", {
         position: "top-center",
@@ -20,10 +20,10 @@ const RouteGuard = ({ children }) => {
         draggable: true,
       });
     }
-  }, [isAuthenticated, loading]);
+  }, [isAuthenticated, loadingUser]);
 
-  // Durante il caricamento, mostriamo null o un componente di loading
-  if (loading) {
+  // Durante il caricamento, mostriamo un componente di loading
+  if (loadingUser) {
     return <div className="loading-container">Caricamento...</div>;
   }
 
