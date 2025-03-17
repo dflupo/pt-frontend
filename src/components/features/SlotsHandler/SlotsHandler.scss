@@ -34,7 +34,7 @@
   justify-content: space-between;
   align-items: center;
 
-  &:hover {cursor: pointer;}
+  &:hover {cursor: pointer; transform: scale(1.015);}
 
   .time {
       font-size: $text-xs;
