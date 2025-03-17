@@ -2,7 +2,7 @@ import './LoginForm.scss';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks';
-import LogoDark from '../../../assets/LogoDark.svg';
+import LogoDark from '../../../assets/LogoDark.svg'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -44,7 +44,6 @@ export default function LoginForm() {
   return (
     <div className="login-form-container">
       <form className="login-form" onSubmit={handleSubmit}>
-
         <div className="logo">
           <img src={LogoDark} alt="Logo" />
         </div>
