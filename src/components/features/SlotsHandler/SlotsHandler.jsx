@@ -99,6 +99,7 @@ export default function SlotsHandler({
   return (
     <div className="slots-handler">
       <div className="control-bar">
+
         <div className="week-selector">
           <button 
             className="nav-button" 

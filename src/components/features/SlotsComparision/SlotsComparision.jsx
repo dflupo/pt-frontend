@@ -1,12 +1,16 @@
 import './SlotsComparision.scss';
-import { MdGroups2, MdDragIndicator } from "react-icons/md";
-import { useState, useCallback } from 'react';
+import { MdGroups2, MdDragIndicator, MdDelete } from "react-icons/md";
+import { useState, useCallback, useRef, useEffect } from 'react';
 
-export default function SlotsComparision({ selectedSlots, moveBooking }) {
+export default function SlotsComparision({ selectedSlots, moveBooking, deleteBooking }) {
   // Stato per tenere traccia dell'utente appena spostato
   const [movedUsers, setMovedUsers] = useState({});
   // Stato per tracciare gli errori di spostamento
   const [dragErrors, setDragErrors] = useState({});
+  // Stato per il popup di conferma cancellazione
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  // Stato per memorizzare i dettagli della prenotazione da cancellare
+  const [bookingToDelete, setBookingToDelete] = useState(null);
   
   // Funzione per formattare la data
   const formatDate = (dateString) => {
@@ -41,6 +45,33 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
             ${end.getHours().toString().padStart(2, '0')}:${end.getMinutes().toString().padStart(2, '0')}`;
   };
   
+  // Funzione per pulire tutti gli effetti di hover al termine del drag
+  const cleanupDragEffects = useCallback(() => {
+    // Rimuovi tutti gli elementi con classe 'drag-over'
+    document.querySelectorAll('.drag-over').forEach(element => {
+      element.classList.remove('drag-over');
+    });
+    
+    // Rimuovi tutti gli elementi con classe 'cancel-drag-over'
+    document.querySelectorAll('.cancel-drag-over').forEach(element => {
+      element.classList.remove('cancel-drag-over');
+    });
+  }, []);
+  
+  // Aggiungi un event listener globale per il dragend
+  useEffect(() => {
+    const handleGlobalDragEnd = () => {
+      cleanupDragEffects();
+    };
+    
+    document.addEventListener('dragend', handleGlobalDragEnd);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('dragend', handleGlobalDragEnd);
+    };
+  }, [cleanupDragEffects]);
+  
   // Handler per l'inizio del drag
   const handleDragStart = (e, booking, slotId) => {
     console.log('Inizio trascinamento:', booking.user_name, 'dallo slot', slotId);
@@ -57,10 +88,19 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
     e.dataTransfer.effectAllowed = 'move';
   };
   
+  // Handler per la fine del drag
+  const handleDragEnd = () => {
+    // Assicuriamoci di pulire gli effetti di hover
+    cleanupDragEffects();
+  };
+  
   // Handler per il drop
   const handleDrop = useCallback(async (e, toSlotId) => {
     e.preventDefault();
     console.log('Drop rilevato sullo slot:', toSlotId);
+    
+    // Pulisci gli effetti di hover
+    cleanupDragEffects();
     
     try {
       // Verifica che ci siano dati nel dataTransfer
@@ -140,7 +180,60 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
         console.error('Errore nel recuperare l\'ID della prenotazione:', parseError);
       }
     }
-  }, [moveBooking, dragErrors]);
+  }, [moveBooking, dragErrors, cleanupDragEffects]);
+  
+  // Handler per il drop nella zona di cancellazione
+  const handleCancelDrop = useCallback(async (e) => {
+    e.preventDefault();
+    
+    // Pulisci gli effetti di hover
+    cleanupDragEffects();
+    
+    try {
+      const jsonData = e.dataTransfer.getData('application/json');
+      if (!jsonData) {
+        console.error('Nessun dato trovato nel drag and drop');
+        return;
+      }
+      
+      const data = JSON.parse(jsonData);
+      
+      // Salva i dati della prenotazione da cancellare e mostra il popup di conferma
+      setBookingToDelete({
+        id: data.bookingId,
+        userId: data.userId,
+        name: data.userName,
+        slotId: data.fromSlotId
+      });
+      
+      setShowConfirmation(true);
+      
+    } catch (error) {
+      console.error('Errore durante la preparazione della cancellazione:', error);
+    }
+  }, [cleanupDragEffects]);
+  
+  // Conferma la cancellazione della prenotazione
+  const confirmDelete = useCallback(async () => {
+    if (!bookingToDelete || !deleteBooking) return;
+    
+    try {
+      await deleteBooking(bookingToDelete.id);
+      console.log(`Prenotazione ${bookingToDelete.id} cancellata con successo`);
+      
+      // Nascondi il popup di conferma
+      setShowConfirmation(false);
+      setBookingToDelete(null);
+    } catch (error) {
+      console.error('Errore durante la cancellazione della prenotazione:', error);
+    }
+  }, [bookingToDelete, deleteBooking]);
+  
+  // Annulla la cancellazione
+  const cancelDelete = () => {
+    setShowConfirmation(false);
+    setBookingToDelete(null);
+  };
   
   // Handler per prevenire comportamenti di default durante il drag
   const handleDragOver = (e) => {
@@ -151,18 +244,37 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
   // Handler per l'entrata del drag nella zona di drop
   const handleDragEnter = (e) => {
     e.preventDefault();
-    // Puoi aggiungere qui una classe per evidenziare la zona di drop
+    e.stopPropagation();
+    
+    // Gestione per le comparison-card
     if (e.currentTarget.classList.contains('comparision-card')) {
       e.currentTarget.classList.add('drag-over');
+    }
+    
+    // Gestione per la zona di cancellazione
+    if (e.currentTarget.classList.contains('cancel-booking')) {
+      e.currentTarget.classList.add('cancel-drag-over');
     }
   };
   
   // Handler per l'uscita del drag dalla zona di drop
   const handleDragLeave = (e) => {
     e.preventDefault();
-    // Rimuovi la classe di evidenziazione
-    if (e.currentTarget.classList.contains('comparision-card')) {
-      e.currentTarget.classList.remove('drag-over');
+    e.stopPropagation();
+    
+    const { relatedTarget } = e;
+    
+    // Verifica se stiamo uscendo veramente dall'elemento e non entrando in un figlio
+    if (!e.currentTarget.contains(relatedTarget)) {
+      // Gestione per le comparison-card
+      if (e.currentTarget.classList.contains('comparision-card')) {
+        e.currentTarget.classList.remove('drag-over');
+      }
+      
+      // Gestione per la zona di cancellazione
+      if (e.currentTarget.classList.contains('cancel-booking')) {
+        e.currentTarget.classList.remove('cancel-drag-over');
+      }
     }
   };
   
@@ -208,6 +320,7 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
       <div className={`col-${colIndex}`}>
         <div 
           className="comparision-card" 
+          data-slot-id={slot.id}
           onDragOver={handleDragOver}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -234,6 +347,7 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
                   className={`user ${movedUsers[booking.id] ? 'moved' : ''} ${dragErrors[booking.id] ? 'error' : ''}`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, booking, slot.id)}
+                  onDragEnd={handleDragEnd}
                 >
                   <span className="drag">
                     <MdDragIndicator />
@@ -252,6 +366,33 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
     );
   };
 
+  // Renderizza il popup di conferma della cancellazione
+  const renderConfirmation = () => {
+    if (!showConfirmation || !bookingToDelete) return null;
+    
+    // Trova lo slot per mostrare le informazioni
+    const slot = selectedSlots.find(s => s && s.id === bookingToDelete.slotId);
+    const slotInfo = slot ? `${formatDate(slot.slot_date || slot.date)} ${formatTime(slot.start_time, slot.end_time)}` : '';
+    
+    return (
+      <div className="confirmation-popup">
+        <h4>Conferma Cancellazione</h4>
+        <p>Sei sicuro di voler annullare la prenotazione di:</p>
+        <p className="booking-details"><strong>{bookingToDelete.name}</strong></p>
+        <p>Per lo slot: <strong>{slotInfo}</strong></p>
+        
+        <div className="confirmation-buttons">
+          <button className="confirm-button" onClick={confirmDelete}>
+            Conferma
+          </button>
+          <button className="cancel-button" onClick={cancelDelete}>
+            Annulla
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="comparision">
       {/* Prima colonna con il primo slot selezionato */}
@@ -259,9 +400,26 @@ export default function SlotsComparision({ selectedSlots, moveBooking }) {
       
       {/* Colonna centrale vuota (spaziatore) */}
       <div className="col-2 spacer">
-        {selectedSlots[0] && selectedSlots[1] && (
-          <div className="comparison-arrows">
-            {/* Qui puoi aggiungere frecce o altri elementi di comparazione */}
+        {(selectedSlots[0] || selectedSlots[1]) && (
+          <div className="comparision-actions">
+            {showConfirmation ? (
+              renderConfirmation()
+            ) : (
+              <div 
+                className="cancel-booking"
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDrop={handleCancelDrop}
+              >
+                <div className="trash-icon">
+                  <MdDelete />
+                </div>
+                <div className="cancel-content">
+                  <span>Annulla prenotazione</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
