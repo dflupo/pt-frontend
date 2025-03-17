@@ -1,154 +1,242 @@
 @use '../../../styles/variables' as *;
 
 .comparision {
-    display: grid;
-    grid-template-columns: 3fr 1fr 3fr;
-    grid-template-rows: 1fr;
-    grid-column-gap: 23px;
-    grid-row-gap: 0px;
+  display: grid;
+  grid-template-columns: 3fr 1fr 3fr;
+  grid-template-rows: 1fr;
+  grid-column-gap: 23px;
+  grid-row-gap: 0px;
+  margin-bottom: 90px;
+  
+  /* Colonne con transizioni fluide */
+  .col-1, .col-2, .col-3 { 
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  
+  .col-1 { grid-area: 1 / 1 / 2 / 2; }
+  .col-2 { grid-area: 1 / 2 / 2 / 3; }
+  .col-3 { grid-area: 1 / 3 / 2 / 4; }
+}
 
-    margin-bottom: 90px;
-
-    .col-1 { grid-area: 1 / 1 / 2 / 2; }
-    .col-2 { grid-area: 1 / 2 / 2 / 3; }
-    .col-3 { grid-area: 1 / 3 / 2 / 4; }
-
-
+.comparision-card {
+  border: 1px solid $border-color;
+  border-radius: $br-m;
+  padding: 20px;
+  height: 100%;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  
+  /* Animazione di entrata */
+  animation: card-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  &.drag-over {
+    border: 2px dashed $primary-color;
+    background-color: rgba(30, 186, 93, 0.02);
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   }
 
-  .comparision-card {
-    border: 1px solid $border-color;
-    border-radius: $br-m;
-    padding: 20px;
-    height: 100%;
-    position: relative;
-    transition: all 0.3s ease;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
     
-    &.drag-over {
-      border: 2px dashed $primary-color;
-      background-color: rgba(30, 186, 93, 0.02);
-      transform: scale(1.02);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    /* Animazione di entrata */
+    animation: fade-in 0.4s ease;
+    animation-fill-mode: both;
+
+    .title h4 {
+      margin: 0; 
+      font-size: $text-m;
+      transition: all 0.3s ease;
     }
 
-    .header {
+    .capability {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      gap: 8px;
+      padding: 5px 15px;
+      border-radius: $br-100;
+      transition: all 0.3s ease;
 
-      .title h4 {margin: 0; font-size: $text-m;}
-
-      .capability {
-        display: flex;
+      p {margin: 0; font-size: $text-s;}
+      .capability-icon {
+        font-size: 20px; 
+        display: flex; 
         align-items: center;
-        gap: 8px;
-        padding: 5px 15px;
-        border-radius: $br-100;
-
-        p {margin: 0; font-size: $text-s;}
-        .capability-icon {font-size: 20px; display: flex; align-items: center;}
+        transition: transform 0.3s ease;
       }
-
-      .capability.gone {
-        background-color: $bg-sec-color;
-        color: $text-trd-color;
-      }
-      .capability.full {
-        background-color: $danger-bg;
-        color: $danger-text;
-      }
-      .capability.almost-full {
-        background-color: $warning-bg;
-        color: $warning-text;
-      }
-      .capability.free {
-        background-color: $success-bg;
-        color: $success-text;
-      }
-
     }
 
-    .users {
-      display: flex;
-      justify-content: flex-start; // Cambia da space-between a flex-start
-      gap: 15px;
-      flex-wrap: wrap;
-    
-      .user {
-        display: flex;
-        align-items: center;
-        background-color: $bg-sec-color;
-        padding: 5px 0px;
-        border-radius: $br-xs;
-        cursor: grab;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        flex: 0 0 calc(50% - 8px); // Flex-basis del 50% dello spazio meno il gap
-        
-        h5 {
-          margin: 0;
-          font-weight: normal;
-          padding: 0 15px 0 5px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          flex: 1;
-        }
+    .capability.gone {
+      background-color: $bg-sec-color;
+      color: $text-trd-color;
+    }
+    .capability.full {
+      background-color: $danger-bg;
+      color: $danger-text;
+    }
+    .capability.almost-full {
+      background-color: $warning-bg;
+      color: $warning-text;
+    }
+    .capability.free {
+      background-color: $success-bg;
+      color: $success-text;
+    }
+  }
 
-        .drag {color: #d5d4d4; display: flex; align-items: center; font-size: 25px; cursor: grab;}
+  .users {
+    display: flex;
+    justify-content: flex-start;
+    gap: 15px;
+    flex-wrap: wrap;
+    
+    /* Stagger animation delay for children */
+    counter-reset: user-count;
+  
+    .user {
+      display: flex;
+      align-items: center;
+      background-color: $bg-sec-color;
+      padding: 5px 0px;
+      border-radius: $br-xs;
+      cursor: grab;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      flex: 0 0 calc(50% - 8px); /* IMPORTANTE: Mantiene layout a 2 colonne */
+      box-sizing: border-box; /* Assicura che il padding e il bordo siano inclusi nel calcolo */
+      border-left: 3px solid transparent;
+      width: calc(50% - 8px); /* Esplicita larghezza per assicurare layout a 2 colonne */
+      
+      /* Animated entrance with staggered delay */
+      animation: user-appear 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(0.05s * (var(--user-index, 0) + 1));
+      
+      /* Set appearance order */
+      counter-increment: user-count;
+      --user-index: counter(user-count);
+      
+      h5 {
+        margin: 0;
+        font-weight: normal;
+        padding: 0 15px 0 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        opacity: 0;
+        animation: fade-in 0.3s ease forwards;
+        animation-delay: calc(0.1s * (var(--user-index, 0) + 1) + 0.1s);
+      }
+
+      .drag {
+        color: #d5d4d4; 
+        display: flex; 
+        align-items: center; 
+        font-size: 25px; 
+        cursor: grab;
+        transition: all 0.3s ease;
+        min-width: 25px; /* Assicura che l'icona abbia uno spazio minimo */
+      }
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        transform: scale(1.03);
         
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.05);
-          transform: scale(1.03);
-        }
-        
-        &:active {
-          cursor: grabbing;
-          transform: scale(0.98);
-        }
-        
-        &.moved {
-          background-color: rgba(0, 200, 83, 0.2);
-          border-left: 3px solid #00c853;
-        }
-        
-        &.error {
-          background-color: rgba(244, 67, 54, 0.2);
-          border-left: 3px solid #f44336;
+        .drag {
+          color: #aaa;
+          transform: translateX(-2px);
         }
       }
       
-      .no-bookings {
-        color: $text-trd-color;
-        font-style: italic;
-        text-align: center;
-        width: 100%;
-        padding: 10px;
-        display: flex;
+      &:active {
+        cursor: grabbing;
+        transform: scale(0.98);
+      }
+      
+      &.moved {
+        background-color: rgba(0, 200, 83, 0.2);
+        border-left: 3px solid #00c853;
+        animation: pulse-success 1.2s ease;
+      }
+      
+      &.error {
+        background-color: rgba(244, 67, 54, 0.2);
+        border-left: 3px solid #f44336;
+        animation: pulse-error 1.2s ease;
       }
     }
     
-    &.empty {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      .empty-message {
-        color: $text-trd-color;
-        text-align: center;
-        padding: 40px 0;
-      }
+    .no-bookings {
+      color: $text-trd-color;
+      font-style: italic;
+      text-align: center;
+      width: 100%;
+      padding: 10px;
+      animation: fade-in 0.5s ease;
     }
+  }
+  
+  &.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .empty-message {
+      color: $text-trd-color;
+      text-align: center;
+      padding: 40px 0;
+      animation: fade-in 0.4s ease;
+    }
+  }
 }
 
-.selected {font-weight: bold;}
-.selected.gone{border: 2px solid $text-trd-color;}
-.selected.full{border: 2px solid $danger-text;}
-.selected.almost-full{border: 2px solid $warning-text;}
-.selected.free{border: 2px solid $success-text;}
+/* Animations */
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes user-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-success {
+  0% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 200, 83, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0); }
+}
+
+@keyframes pulse-error {
+  0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+}
 
 .comparision-actions {
   display: flex;
   justify-content: center;
+  transition: all 0.3s ease;
+  animation: fade-in 0.5s ease;
 }
 
 .cancel-booking {
@@ -161,7 +249,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   position: relative;
   overflow: hidden;
   
@@ -178,7 +266,6 @@
     }
   }
   
-  // Contenitore per il testo che non interferisce con gli eventi di drag
   .cancel-content {
     position: absolute;
     z-index: 1;
@@ -191,6 +278,15 @@
   span {
     font-size: $text-s; 
     color: $danger-text;
+  }
+  
+  &:hover {
+    background-color: #f0f0f0;
+    
+    .trash-icon {
+      transform: scale(1.1);
+      color: $danger-text;
+    }
   }
   
   &.cancel-drag-over {
@@ -218,6 +314,7 @@
   padding: 20px;
   width: 100%;
   text-align: center;
+  animation: popup-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   
   h4 {
     margin-top: 0;
@@ -245,7 +342,7 @@
       border: none;
       cursor: pointer;
       font-weight: bold;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
       
       &.confirm-button {
         background-color: $danger-bg;
@@ -253,6 +350,11 @@
         
         &:hover {
           background-color: $danger-bg;
+          transform: translateY(-2px);
+        }
+        
+        &:active {
+          transform: translateY(0);
         }
       }
       
@@ -262,8 +364,24 @@
         
         &:hover {
           background-color: $bg-sec-color;
+          transform: translateY(-2px);
+        }
+        
+        &:active {
+          transform: translateY(0);
         }
       }
     }
+  }
+}
+
+@keyframes popup-appear {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

@@ -1,5 +1,198 @@
-@use "../../styles/_variables.scss" as *;
+@use '../../styles/variables' as *;
 
-.comparision-container {
-  margin-bottom: 25px;
+.manage-bookings {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  
+  .content-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity; /* Migliora performance transizioni */
+    
+    /* Classi per la transizione di cambio settimana */
+    &.week-transitioning {
+      opacity: 0.8;
+      pointer-events: none; /* Previene interazioni durante la transizione */
+    }
+    
+    &.prev-week {
+      transform: translateX(3%);
+    }
+    
+    &.next-week {
+      transform: translateX(-3%);
+    }
+    
+    &.changing-week {
+      pointer-events: none; /* Previene interazioni durante la transizione */
+    }
+  }
+  
+  .comparision-container {
+    margin-bottom: 30px;
+    padding: 10px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    min-height: 0;
+    overflow: hidden;
+    will-change: opacity, transform; /* Migliora performance transizioni */
+    
+    /* Stati di caricamento e completamento */
+    &.loading-data {
+      opacity: 0.8;
+    }
+    
+    &.data-loaded .users .user {
+      animation: pulse-update 0.5s ease-in-out;
+    }
+    
+    &.loading-error {
+      animation: pulse-error 0.8s ease-in-out;
+    }
+    
+    /* Quando è vuoto, occupa spazio minimo */
+    &:empty {
+      margin-bottom: 0;
+      padding: 0;
+      min-height: 0;
+      overflow: hidden;
+      max-height: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    /* Quando ci sono figli, assicura un'animazione di apertura fluida */
+    &:not(:empty) {
+      animation: comparison-container-open 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      min-height: 200px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+  
+  .slots-container {
+    flex: 1;
+    position: relative;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity; /* Migliora performance transizioni */
+  }
+}
+
+/* Animazione per apertura del container di confronto */
+@keyframes comparison-container-open {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 800px;
+    transform: translateY(0);
+  }
+}
+
+/* Animazione per pulsazione di aggiornamento (verde) */
+@keyframes pulse-update {
+  0% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.2); }
+  70% { box-shadow: 0 0 0 8px rgba(0, 200, 83, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0); }
+}
+
+/* Animazione per pulsazione di errore (rosso) */
+@keyframes pulse-error {
+  0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.2); }
+  70% { box-shadow: 0 0 0 15px rgba(244, 67, 54, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+}
+
+/* Migliora l'aspetto visivo delle transizioni per il cambio settimana */
+.week-title {
+  position: relative;
+  transition: all 0.3s ease;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: $primary-color;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+  }
+  
+  &.changing::after {
+    width: 50%;
+  }
+}
+
+/* Personalizzazione scrollbar per un'esperienza più fluida */
+.manage-bookings {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+/* Correzioni per prevenire salti di layout durante le transizioni */
+.weekdays-deck {
+  transform-style: preserve-3d; /* Migliora le animazioni 3D */
+  will-change: transform, opacity; /* Anticipa i cambiamenti per miglior performance */
+  backface-visibility: hidden; /* Migliora le animazioni */
+}
+
+/* Animazione fade-in base */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Supporta esperienze di motion-reduced per accessibilità */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Stile per il messaggio "nessuno slot selezionato" */
+.empty-message {
+  animation: fade-in 0.5s ease;
+}
+
+/* Stili per la vista mobile */
+@media (max-width: 768px) {
+  .comparision-container {
+    transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                opacity 0.3s ease;
+    
+    &:not(:empty) {
+      max-height: 600px; /* Altezza massima più bassa su mobile */
+    }
+  }
+  
+  .content-container {
+    padding: 10px;
+  }
 }
