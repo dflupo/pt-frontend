@@ -1,46 +1,82 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
+// Usa la variabile d'ambiente se disponibile, altrimenti usa un valore predefinito
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-const axiosInstance = axios.create({
+const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor to add the authentication token to each request
-axiosInstance.interceptors.request.use(
+// Interceptor per le richieste
+api.interceptors.request.use(
   (config) => {
+    // Aggiungi il token di autenticazione a ogni richiesta
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Log delle richieste in ambiente di sviluppo
+    if (import.meta.env.DEV) {
+      console.log(`API Request: ${config.method.toUpperCase()} ${config.url}`);
+    }
+    
     return config;
   },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor to handle common errors
-axiosInstance.interceptors.response.use(
-  (response) => response,
   (error) => {
-    if (error.response) {
-      // Handle authentication errors
-      if (error.response.status === 401) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        // Redirect to login page if needed
-        // window.location.href = '/login';
-      }
-      
-      // You can add other error handling as needed
-      if (error.response.status === 422) {
-        console.error('Validation Error:', error.response.data.detail);
-      }
-    }
+    console.error('Errore nella richiesta:', error);
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance;
+// Interceptor per le risposte
+api.interceptors.response.use(
+  (response) => {
+    // Log delle risposte in ambiente di sviluppo
+    if (import.meta.env.DEV) {
+      console.log(`API Response: ${response.status} ${response.config.url}`);
+    }
+    return response;
+  },
+  (error) => {
+    // Gestione migliorata degli errori
+    if (error.response) {
+      const { status, data, config } = error.response;
+      console.error(`API Error ${status}: ${config.method.toUpperCase()} ${config.url}`, data);
+      
+      // Gestione errori di autenticazione
+      if (status === 401) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        // Opzionale: reindirizza alla pagina di login
+        // window.location.href = '/login';
+      }
+      
+      // Formatta gli errori di validazione per un debug migliore
+      if (status === 422) {
+        if (data.detail && Array.isArray(data.detail)) {
+          console.error('Errori di validazione:', data.detail.map(err => ({
+            campo: err.loc ? err.loc.join('.') : 'sconosciuto',
+            messaggio: err.msg,
+            tipo: err.type
+          })));
+        } else {
+          console.error('Errore di validazione:', data.detail);
+        }
+      }
+    } else if (error.request) {
+      // La richiesta è stata effettuata ma non è stata ricevuta alcuna risposta
+      console.error('Nessuna risposta ricevuta:', error.request);
+    } else {
+      // Si è verificato un errore durante l'impostazione della richiesta
+      console.error('Errore di configurazione della richiesta:', error.message);
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default api;

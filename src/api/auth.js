@@ -1,33 +1,40 @@
 import api from './axiosConfig';
+import qs from 'qs'; // Importa qs per la serializzazione dei dati in formato form-urlencoded
 
 export const authAPI = {
   login: async (email, password) => {
     try {
-      // Format data as x-www-form-urlencoded
-      const formData = new URLSearchParams();
-      formData.append('username', email);
-      formData.append('password', password);
-      formData.append('grant_type', 'password');
-      formData.append('scope', '');
-      // Client ID and secret could be added if needed
-      // formData.append('client_id', import.meta.env.VITE_CLIENT_ID);
-      // formData.append('client_secret', import.meta.env.VITE_CLIENT_SECRET);
+      // Prepara i dati nel formato corretto (application/x-www-form-urlencoded)
+      const data = qs.stringify({
+        grant_type: 'password',
+        username: email,
+        password: password,
+        scope: '',
+        client_id: '', // Sostituisci con il client_id corretto se necessario
+        client_secret: '' // Sostituisci con il client_secret corretto se necessario
+      });
 
-      const response = await api.post('/login', formData, {
+      // Effettua la richiesta con il formato corretto
+      const response = await api.post('/login', data, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json'
         }
       });
-
-      // Save tokens to localStorage
+      
+      // Salva i token di autenticazione
       if (response.data.access_token) {
         localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        // Update the token in axiosConfig for future requests
+        
+        // Salva anche il refresh token se presente
+        if (response.data.refresh_token) {
+          localStorage.setItem('refresh_token', response.data.refresh_token);
+        }
+        
+        // Imposta l'header di autorizzazione per le future richieste
         api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
       }
-
+      
       return response.data;
     } catch (error) {
       console.error('Login error:', error.response ? error.response.data : error.message);
@@ -70,20 +77,8 @@ export const authAPI = {
       delete api.defaults.headers.common['Authorization'];
       throw error;
     }
-  },
-
-  // Get current authenticated user details
-  getCurrentUser: async () => {
-    try {
-      const response = await api.get('/users/me', {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Get current user error:', error.response ? error.response.data : error.message);
-      throw error;
-    }
   }
 };
+
+// Esporta anche come default per compatibilità
+export default authAPI;

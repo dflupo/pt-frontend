@@ -14,13 +14,31 @@ export default function useAuth() {
     setError(null);
     try {
       const response = await authAPI.login(email, password);
-      // After successful login, get the current user details
-      const userData = await usersAPI.getCurrentUser();
-      setUser(userData);
-      setIsAuthenticated(true);
-      return userData;
+      
+      // You'll need to extract the user ID from the login response
+      // For example, if the response has a user_id field:
+      const userId = response.user_id; 
+      
+      // Store the user ID for future use
+      localStorage.setItem('user_id', userId);
+      console.log(localStorage.getItem('user_id'));
+      
+      try {
+        // Use getUserById 
+        const userData = await usersAPI.getUserById(userId);
+        setUser(userData);
+        setIsAuthenticated(true);
+        return userData;
+      } catch (userError) {
+        console.error('Error getting user data after login:', userError);
+        setUser({ email });
+        setIsAuthenticated(true);
+        throw userError;
+      }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to login');
+      console.error('Login error:', err);
+      const errorMessage = err.response?.data?.detail || 'Failed to login';
+      setError(typeof errorMessage === 'string' ? errorMessage : 'Authentication error occurred');
       throw err;
     } finally {
       setLoading(false);
@@ -35,7 +53,8 @@ export default function useAuth() {
       const response = await authAPI.register(userData);
       return response;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to register');
+      const errorMessage = err.response?.data?.detail || 'Failed to register';
+      setError(typeof errorMessage === 'string' ? errorMessage : 'Registration error occurred');
       throw err;
     } finally {
       setLoading(false);
@@ -51,8 +70,9 @@ export default function useAuth() {
       setUser(null);
       setIsAuthenticated(false);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to logout');
-      // Even if server logout fails, perform client-side logout
+      const errorMessage = err.response?.data?.detail || 'Failed to logout';
+      setError(typeof errorMessage === 'string' ? errorMessage : 'Logout error occurred');
+      // Anche se il logout lato server fallisce, eseguiamo comunque il logout lato client
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -60,36 +80,11 @@ export default function useAuth() {
     }
   }, [setUser, setIsAuthenticated]);
 
-  // Check authentication status
-  const checkAuth = useCallback(async () => {
-    setLoading(true);
+
+  // Funzione per cancellare gli errori
+  const clearError = useCallback(() => {
     setError(null);
-    try {
-      // If access token isn't present, we're not authenticated
-      if (!localStorage.getItem('access_token')) {
-        setIsAuthenticated(false);
-        setUser(null);
-        return false;
-      }
-
-      const userData = await usersAPI.getCurrentUser();
-      setUser(userData);
-      setIsAuthenticated(true);
-      return true;
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to verify authentication');
-      setUser(null);
-      setIsAuthenticated(false);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [setUser, setIsAuthenticated]);
-
-  // Verify authentication on startup
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   return {
     user,
@@ -99,6 +94,6 @@ export default function useAuth() {
     login,
     register,
     logout,
-    checkAuth
+    clearError
   };
 }

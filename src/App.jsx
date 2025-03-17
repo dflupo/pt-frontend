@@ -1,11 +1,11 @@
-
 import './styles/main.scss'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './contexts/AuthContext';
-import RouteGuard from './components/utils/RouteGuard/RouteGuard';
+import RouteGuard from './components/utils/RouteGuard';
 import MainLayout from './layouts/MainLayout/MainLayout';
+import ErrorBoundary from './components/utils/ErrorBoundary';
 
 import LoginPage from './routes/LoginPage/LoginPage';
 import ManageUsers from './routes/ManageUsers/ManageUsers';
@@ -14,25 +14,25 @@ import ManageBookings from './routes/ManageBookings/ManageBookings';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ToastContainer />
-        <Routes>
-          {/* Rotte pubbliche */}
-          <Route path="/login" element={<LoginPage />} />
-          
-          <Route path="/" element={<RouteGuard><MainLayout /></RouteGuard>}>
-            <Route index element={<Navigate to="/gestione-utenti" replace />} />
-            <Route path="gestione-utenti" element={<ManageUsers />} />
-            <Route path="gestione-utenti/:name" element={<UserPage />} />
-            <Route path="gestione-sala" element={<ManageBookings />} />
-          </Route>
-          
-          {/* Gestione 404 - reindirizza alla home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <ErrorBoundary showDetails={true}>
+      <AuthProvider>
+        <Router>
+          <ToastContainer />
+          <Routes>
+            {/* Rotte pubbliche */}
+            <Route path="/login" element={<LoginPage />} />
+            
+            <Route path="/" element={<RouteGuard><MainLayout /></RouteGuard>}>
+              <Route index element={<Navigate to="/gestione-utenti" replace />} />
+              <Route path="gestione-utenti" element={<ManageUsers />} />
+              <Route path="gestione-utenti/:name" element={<UserPage />} />
+              <Route path="gestione-sala" element={<ManageBookings />} />
+            </Route>
+            
+            <Route path="*" element={<Navigate to="/404" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
-
