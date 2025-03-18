@@ -330,6 +330,7 @@ export default function useBookings() {
     try {
       const schedules = await bookingsAPI.getUserSchedules(userId);
       setUserSchedules(schedules);
+      console.log('User schedules:', schedules);
       return schedules;
     } catch (err) {
       setError(err.response?.data?.detail || 'Error loading user schedules');

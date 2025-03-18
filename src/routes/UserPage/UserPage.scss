@@ -39,7 +39,7 @@
   
   .user-info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: 1fr;
     gap: $spacing-large;
     
     .user-info-card {
@@ -62,7 +62,7 @@
         .label {
           flex: 0 0 120px;
           font-weight: 600;
-          color: $text-sec-color; // Cambiato da $text-color-light a $text-sec-color
+          color: $text-sec-color;
         }
         
         .value {
@@ -71,6 +71,212 @@
         }
       }
     }
+  }
+  
+  // Navigation tabs
+  .user-tabs-container {
+    margin-bottom: $spacing-medium;
+  }
+  
+  .user-tabs {
+    display: flex;
+    background-color: white;
+    border-radius: $br-l;
+    padding: $spacing-small;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow-x: auto; // Per garantire la responsività
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: $spacing-small $spacing-medium;
+      font-size: $text-m;
+      color: $text-sec-color;
+      border-radius: $br-m;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: $bg-sec-hover-color;
+      }
+      
+      &.active {
+        background-color: $primary-color;
+        color: white;
+        font-weight: 500;
+      }
+      
+      &:not(:last-child) {
+        margin-right: $spacing-small;
+      }
+    }
+  }
+  
+  // Stile specifico per rimuovere la duplicazione quando UserSchedule è in una card
+  .user-info-card .schedule-card {
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+    
+    h2 {
+      // Assicurati che il titolo Orari Predefiniti abbia lo stesso stile degli altri titoli
+      margin-top: 0;
+      margin-bottom: $spacing-medium;
+      font-size: $text-large;
+      color: $text-color;
+    }
+  }
+  
+  // Stili specifici per i contenuti delle viste
+  .view-more-link {
+    margin-top: $spacing-medium;
+    text-align: center;
+    
+    button {
+      background: none;
+      border: none;
+      color: $primary-color;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: underline;
+      
+      &:hover {
+        color: $primary-color-hover;
+      }
+    }
+  }
+  
+  .goal-progress {
+    margin-top: $spacing-small;
+    width: 100%;
+    
+    progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      
+      &::-webkit-progress-bar {
+        background-color: $bg-sec-color;
+        border-radius: 4px;
+      }
+      
+      &::-webkit-progress-value {
+        background-color: $primary-color;
+        border-radius: 4px;
+      }
+      
+      &::-moz-progress-bar {
+        background-color: $primary-color;
+        border-radius: 4px;
+      }
+    }
+  }
+  
+  .goal-item {
+    padding: $spacing-medium;
+    background-color: $bg-sec-color;
+    border-radius: $br-m;
+    margin-bottom: $spacing-medium;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .workout-plan-item, .meal-plan-item {
+    margin-bottom: $spacing-large;
+    padding-bottom: $spacing-large;
+    border-bottom: 1px solid $border-color;
+    
+    &:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    
+    .plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-small;
+      
+      h3 {
+        margin: 0;
+        font-size: $text-m;
+        color: $text-color;
+      }
+      
+      .plan-date {
+        font-size: $text-s;
+        color: $text-sec-color;
+      }
+    }
+    
+    .plan-description {
+      margin-bottom: $spacing-medium;
+      color: $text-sec-color;
+    }
+    
+    .set-item {
+      margin-bottom: $spacing-medium;
+      
+      h4 {
+        margin-top: 0;
+        margin-bottom: $spacing-small;
+        font-size: $text-m;
+        color: $text-color;
+      }
+      
+      .exercises-list {
+        list-style-type: disc;
+        padding-left: $spacing-large;
+        margin: 0;
+        
+        li {
+          margin-bottom: $spacing-small;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+  
+  .meals-table {
+    width: 100%;
+    overflow-x: auto;
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      
+      th, td {
+        padding: $spacing-small;
+        text-align: left;
+        border-bottom: 1px solid $border-color;
+      }
+      
+      th {
+        font-weight: 600;
+        color: $text-sec-color;
+      }
+      
+      tr:last-child td {
+        border-bottom: none;
+      }
+    }
+  }
+  
+  .empty-state {
+    padding: $spacing-large;
+    text-align: center;
+    color: $text-sec-color;
+    background-color: $bg-sec-color;
+    border-radius: $br-m;
   }
 }
 
@@ -81,10 +287,10 @@
   justify-content: center;
   align-items: center;
   height: 300px;
-  font-size: $text-large; // Cambiato da $text-l a $text-large
-  color: $text-sec-color; // Cambiato da $text-color-light a $text-sec-color
+  font-size: $text-large;
+  color: $text-sec-color;
 }
 
 .user-page-error {
-  color: $danger-text; // Cambiato da $danger-color a $danger-text
+  color: $danger-text;
 }
