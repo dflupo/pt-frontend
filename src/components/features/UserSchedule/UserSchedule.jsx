@@ -208,56 +208,54 @@ const UserSchedule = ({ userId }) => {
       {loading ? (
         <div className="loading-indicator">Caricamento orari...</div>
       ) : (
-        <div className="schedule-layout">
-          <div className="schedule-content">
-            {/* Lista degli schedule esistenti */}
-            {userSchedules && userSchedules.length > 0 ? (
-              <div className="schedule-list">
-                {userSchedules.map((schedule) => (
-                  <div key={schedule.id} className={`schedule-item ${(!schedule.active || schedule.active === 0) ? 'inactive-schedule' : ''}`}>
-                    <div className="schedule-details">
-                      <div className="schedule-day">{getDayName(schedule.day_of_week)}</div>
-                      <div className="schedule-time">
-                        {secondsToTimeString(schedule.start_time)} - {secondsToTimeString(schedule.end_time)}
-                      </div>
-                      {(!schedule.active || schedule.active === 0) && (
-                        <div className="schedule-status">Inattivo</div>
-                      )}
+        <>
+          {/* Lista degli schedule esistenti */}
+          {userSchedules && userSchedules.length > 0 ? (
+            <div className="schedule-list">
+              {userSchedules.map((schedule) => (
+                <div key={schedule.id} className={`schedule-item ${(!schedule.active || schedule.active === 0) ? 'inactive-schedule' : ''}`}>
+                  <div className="schedule-details">
+                    <div className="schedule-day">{getDayName(schedule.day_of_week)}</div>
+                    <div className="schedule-time">
+                      {secondsToTimeString(schedule.start_time)} - {secondsToTimeString(schedule.end_time)}
                     </div>
-                    <div className="schedule-actions">
-                      <button 
-                        type="button" 
-                        className="edit-button"
-                        onClick={() => handleEdit(schedule)}
-                      >
-                        Modifica
-                      </button>
-                      <button 
-                        type="button" 
-                        className="delete-button"
-                        onClick={() => confirmDelete(schedule.id)}
-                      >
-                        Elimina
-                      </button>
-                    </div>
+                    {(!schedule.active || schedule.active === 0) && (
+                      <div className="schedule-status">Inattivo</div>
+                    )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">Nessun orario predefinito impostato</div>
-            )}
+                  <div className="schedule-actions">
+                    <button 
+                      type="button" 
+                      className="edit-button"
+                      onClick={() => handleEdit(schedule)}
+                    >
+                      Modifica
+                    </button>
+                    <button 
+                      type="button" 
+                      className="delete-button"
+                      onClick={() => confirmDelete(schedule.id)}
+                    >
+                      Elimina
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">Nessun orario predefinito impostato</div>
+          )}
 
-            {/* Pulsante per aggiungere un nuovo schedule */}
-            {!isEditing && (
-              <button 
-                type="button" 
-                className="add-schedule-button"
-                onClick={() => setIsEditing(true)}
-              >
-                Aggiungi Orario
-              </button>
-            )}
-          </div>
+          {/* Pulsante per aggiungere un nuovo schedule */}
+          {!isEditing && (
+            <button 
+              type="button" 
+              className="add-schedule-button"
+              onClick={() => setIsEditing(true)}
+            >
+              Aggiungi Orario
+            </button>
+          )}
 
           {/* Form per la creazione o modifica di uno schedule */}
           {isEditing && (
@@ -333,7 +331,7 @@ const UserSchedule = ({ userId }) => {
               </form>
             </div>
           )}
-        </div>
+        </>
       )}
 
       {/* Modale di conferma eliminazione */}

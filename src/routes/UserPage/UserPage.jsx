@@ -364,7 +364,7 @@ export default function UserPage() {
         return (
           <div className="schedule-content">
             {/* Orari Predefiniti - Componente UserSchedule */}
-            <div className="user-info-card">
+            <div className="schedule-container">
               {user && user.id && <UserSchedule userId={user.id} />}
             </div>
           </div>
