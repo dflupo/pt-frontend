@@ -8,7 +8,7 @@ export default function ManageUsers() {
 
     return(
         <div className="manage-users">
-            <TopBar title="Gestione utenti" />
+            <TopBar title="Gestione Clienti" />
             <UsersTable />
         </div>
     )

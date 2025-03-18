@@ -1,82 +1,159 @@
 @use '../../../styles/_variables.scss' as *;
 
-.users-table table {
-  width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #ebebeb;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
-  th,
-  td {
-    border: 1px solid #ebebeb;
-    padding: 15px 10px;
-    text-align: left;
+.users-table {
+  &-controls {
+    margin-bottom: 20px;
+    
+    .search-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 15px;
+      border: 1px solid #ebebeb;
+      border-radius: 4px;
+      font-size: $text-s;
+      transition: all 0.3s ease;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+      }
+      
+      &::placeholder {
+        color: $text-sec-color;
+        opacity: 0.6;
+      }
+    }
   }
-
-  th {
-    font-size: $text-m;
-    font-weight: normal;
-    position: relative;
-    background-color: #f6f6f6;
-  }
-
-  td {
+  
+  &-info {
+    margin-bottom: 10px;
     font-size: $text-s;
     color: $text-sec-color;
   }
-
-  tbody tr:nth-child(even) {
-    background-color: #fafafa;
+  
+  &-loading, &-error, .no-users {
+    padding: 20px;
+    text-align: center;
+    color: $text-sec-color;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #ebebeb;
   }
-
-  tbody tr:nth-child(odd) {
-    background-color: #fff;
-  }
-
-  td span {
-    padding: 5px 15px;
-    border-radius: 100px;
-    transition: all 0.25s ease;
-  }
-
-  td .active {
-    background-color: $success-bg;
-    color: $success-text;
-  }
-
-  td .expiring {
-    background-color: $warning-bg;
-    color: $warning-text;
-  }
-
-  td .expired {
-    background-color: $danger-bg;
+  
+  &-error {
     color: $danger-text;
+    background-color: $danger-bg;
   }
 
-  .clickable-row {
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    
-    &:hover {
-      background-color: #fff !important;
-      color: $text-color;
-      transform: scale(1.03);
-            
-      td {
-        color: $text-sec-color;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ebebeb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    th,
+    td {
+      border: 1px solid #ebebeb;
+      padding: 15px 10px;
+      text-align: left;
+    }
+
+    th {
+      font-size: $text-m;
+      font-weight: normal;
+      position: relative;
+      background-color: #f6f6f6;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: #f0f0f0;
       }
       
-      td span {
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+      // Aggiungi icone di sort
+      &.sort-asc::after,
+      &.sort-desc::after {
+        content: '';
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+      }
+      
+      &.sort-asc::after {
+        border-bottom: 5px solid $text-sec-color;
+        transform: translateY(-60%);
+      }
+      
+      &.sort-desc::after {
+        border-top: 5px solid $text-sec-color;
+        transform: translateY(-40%);
       }
     }
-    
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      transition: all 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    td {
+      font-size: $text-s;
+      color: $text-sec-color;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    tbody tr:nth-child(odd) {
+      background-color: #fff;
+    }
+
+    td span {
+      padding: 5px 15px;
+      border-radius: 100px;
+      transition: all 0.25s ease;
+    }
+
+    td .active {
+      background-color: $success-bg;
+      color: $success-text;
+    }
+
+    td .expiring {
+      background-color: $warning-bg;
+      color: $warning-text;
+    }
+
+    td .expired {
+      background-color: $danger-bg;
+      color: $danger-text;
+    }
+
+    .clickable-row {
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      &:hover {
+        background-color: #fff !important;
+        color: $text-color;
+        transform: scale(1.03);
+              
+        td {
+          color: $text-sec-color;
+        }
+        
+        td span {
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+      }
+      
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: all 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
     }
   }
 }
