@@ -1,0 +1,434 @@
+// SubscriptionDetailsPage.scss
+@use '../../styles/variables' as *;
+
+.subscription-details-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: $spacing-large;
+    
+    .loading-container,
+    .error-container,
+    .not-found-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+      font-size: $text-m;
+    }
+    
+    .error-container {
+      color: $danger-text;
+    }
+    
+    .subscription-details {
+      .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: $spacing-large;
+        padding-bottom: $spacing-medium;
+        border-bottom: 1px solid $border-color;
+        
+        .title-section {
+          flex-grow: 1;
+          
+          h1 {
+            margin: 0 0 $spacing-small 0;
+            font-size: $text-xxl;
+          }
+          
+          .description {
+            margin: 0;
+            color: $text-sec-color;
+          }
+
+          .editable-field {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            padding: $spacing-small;
+            border-radius: $br-xs;
+            transition: background-color 0.2s;
+
+            &:hover {
+              background-color: rgba($primary-color, 0.05);
+
+              .edit-icon {
+                opacity: 1;
+              }
+            }
+
+            .edit-icon {
+              margin-left: $spacing-small;
+              color: $primary-color;
+              opacity: 0;
+              transition: opacity 0.2s;
+              font-size: $text-m;
+            }
+          }
+
+          .inline-edit-container {
+            margin-bottom: $spacing-medium;
+          }
+
+          .inline-edit-input, 
+          .inline-edit-textarea {
+            width: 100%;
+            padding: $spacing-small;
+            border: 1px solid $primary-color;
+            border-radius: $br-xs;
+            font-size: $text-m;
+            outline: none;
+            
+            &:focus {
+              box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+            }
+          }
+
+          .inline-edit-textarea {
+            resize: vertical;
+            min-height: 100px;
+          }
+
+          .inline-edit-actions {
+            display: flex;
+            gap: $spacing-small;
+            margin-top: $spacing-small;
+          }
+
+          .inline-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: $spacing-small;
+            border: none;
+            border-radius: $br-xs;
+            cursor: pointer;
+            font-size: $text-m;
+            transition: background-color 0.2s;
+
+            &.success {
+              color: white;
+              background-color: $primary-color;
+
+              &:hover {
+                background-color: $primary-color-hover;
+              }
+            }
+
+            &.danger {
+              color: white;
+              background-color: $danger-text;
+
+              &:hover {
+                background-color: $danger-text;
+              }
+            }
+          }
+        }
+        
+        .actions-section {
+          display: flex;
+          gap: $spacing-small;
+          
+          button {
+            white-space: nowrap;
+          }
+        }
+      }
+      
+      .plans-section {
+        .plans-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: $spacing-medium;
+          
+          h2 {
+            margin: 0;
+            font-size: $text-large;
+          }
+        }
+        
+        .empty-plans {
+          padding: $spacing-large;
+          text-align: center;
+          background-color: $bg-sec-color;
+          border-radius: $br-s;
+        }
+        
+        .plans-table-container {
+          overflow-x: auto;
+        }
+        
+        .plans-table {
+          width: 100%;
+          border-collapse: collapse;
+          
+          th, td {
+            padding: $spacing-medium $spacing-small;
+            text-align: left;
+            border-bottom: 1px solid $border-color;
+          }
+          
+          th {
+            font-weight: 600;
+            background-color: $bg-sec-color;
+          }
+          
+          tr {
+            transition: background-color 0.3s;
+
+            &:hover {
+              background-color: rgba($primary-color, 0.05);
+            }
+
+            &.updated-row {
+              animation: highlight-row 2s ease-in-out;
+            }
+          }
+
+          .editable-cell {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: $spacing-small;
+            border-radius: $br-xs;
+
+            &:hover {
+              background-color: rgba($primary-color, 0.1);
+
+              .edit-icon-small {
+                opacity: 1;
+              }
+            }
+
+            .edit-icon-small {
+              margin-left: $spacing-small;
+              color: $primary-color;
+              opacity: 0;
+              transition: opacity 0.2s;
+              font-size: $text-s;
+            }
+          }
+
+          .inline-edit-field {
+            display: flex;
+            align-items: center;
+            
+            .inline-edit-input {
+              padding: $spacing-small;
+              border: 1px solid $primary-color;
+              border-radius: $br-xs;
+              font-size: $text-s;
+              width: 80px;
+              
+              &:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+              }
+            }
+            
+            .inline-edit-actions {
+              display: flex;
+              margin-left: $spacing-small;
+            }
+            
+            .inline-action-btn {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 24px;
+              height: 24px;
+              border: none;
+              border-radius: $br-xs;
+              cursor: pointer;
+              font-size: $text-s;
+              margin-left: 2px;
+              transition: background-color 0.2s;
+
+              &.success {
+                color: white;
+                background-color: $primary-color;
+
+                &:hover {
+                  background-color: $primary-color-hover;
+                }
+              }
+
+              &.danger {
+                color: white;
+                background-color: $danger-text;
+
+                &:hover {
+                  background-color: $danger-text;
+                }
+              }
+            }
+          }
+
+          .delete-confirmation {
+            padding: $spacing-medium;
+            background-color: $danger-bg;
+            color: $danger-text;
+            text-align: center;
+
+            .delete-message {
+              margin-bottom: $spacing-small;
+              font-weight: 500;
+            }
+
+            .delete-actions {
+              display: flex;
+              justify-content: center;
+              gap: $spacing-medium;
+            }
+          }
+          
+          .actions-cell {
+            display: flex;
+            gap: $spacing-small;
+            
+            button {
+              padding: $spacing-small;
+              font-size: $text-s;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              
+              svg {
+                font-size: $text-m;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    .subscription-edit-form,
+    .plan-form {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: $spacing-large;
+      background-color: $bg-sec-color;
+      border-radius: $br-m;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      
+      h2, h3 {
+        margin-top: 0;
+        margin-bottom: $spacing-large;
+        text-align: center;
+      }
+      
+      .form-group {
+        margin-bottom: $spacing-large;
+        
+        label {
+          display: block;
+          margin-bottom: $spacing-small;
+          font-weight: 500;
+        }
+        
+        input, textarea {
+          width: 100%;
+          padding: $spacing-medium;
+          border: 1px solid $border-color;
+          border-radius: $br-xs;
+          font-size: $text-m;
+          
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+          }
+        }
+        
+        textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: $spacing-medium;
+        margin-top: $spacing-large;
+        
+        button {
+          flex: 1;
+          padding: $spacing-medium;
+        }
+      }
+    }
+  }
+  
+  // Animazione per il feedback visivo dell'aggiornamento
+  @keyframes highlight-row {
+    0% {
+      background-color: rgba($success-bg, 0.7);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+  
+  // Stili comuni per i bottoni
+  .btn {
+    display: inline-block;
+    padding: $spacing-small $spacing-medium;
+    border: none;
+    border-radius: $br-xs;
+    font-size: $text-m;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    
+    &:hover {
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    &.btn-primary {
+      background-color: $primary-color;
+      color: white;
+      
+      &:hover {
+        background-color: $primary-color-hover;
+      }
+    }
+    
+    &.btn-secondary {
+      background-color: $bg-sec-color;
+      color: $text-color;
+      border: 1px solid $border-color;
+      
+      &:hover {
+        background-color: $bg-sec-hover-color;
+      }
+    }
+    
+    &.btn-danger {
+      background-color: $danger-text;
+      color: white;
+      
+      &:hover {
+        background-color: $danger-text;
+      }
+    }
+    
+    &.btn-sm {
+      padding: $spacing-small;
+      font-size: $text-s;
+    }
+  }

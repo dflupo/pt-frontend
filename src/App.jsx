@@ -12,6 +12,7 @@ import ManageUsers from './routes/ManageUsers/ManageUsers';
 import UserPage from './routes/UserPage/UserPage';
 import ManageBookings from './routes/ManageBookings/ManageBookings';
 import SubscriptionsPage from './routes/SubscriptionsPage/SubscriptionsPage';
+import SubscriptionDetailsPage from './routes/SubscriptionDetailsPage/SubscriptionDetailsPage';
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
               <Route path="gestione-sala" element={<ManageBookings />} />
 
               <Route path="abbonamenti" element={<SubscriptionsPage />} />
+              <Route path="abbonamenti/:subscriptionName" element={<SubscriptionDetailsPage />} />
             </Route>
             
             <Route path="*" element={<Navigate to="/404" replace />} />
