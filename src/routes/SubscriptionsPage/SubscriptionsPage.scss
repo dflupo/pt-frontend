@@ -1,0 +1,413 @@
+// Variabili
+$primary-color: #4a6cf7;
+$secondary-color: #6c757d;
+$danger-color: #dc3545;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$border-color: #dee2e6;
+$hover-color: #f1f3f5;
+$shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+$radius: 6px;
+$spacing: 1rem;
+
+// Mixins
+@mixin card {
+  background-color: white;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: $spacing;
+  transition: all 0.2s ease;
+}
+
+@mixin button($bg-color, $text-color: white) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: none;
+  border-radius: $radius;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+  
+  &.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+// Stili base
+.subscriptions-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: $dark-color;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing;
+  
+  h2 {
+    margin-bottom: $spacing * 1.5;
+    color: $dark-color;
+    font-weight: 600;
+  }
+  
+  h3 {
+    margin-bottom: $spacing;
+    font-weight: 500;
+  }
+  
+  .btn {
+    @include button($secondary-color);
+    margin-right: 0.5rem;
+    
+    &:last-child {
+      margin-right: 0;
+    }
+    
+    &.btn-primary {
+      @include button($primary-color);
+    }
+    
+    &.btn-danger {
+      @include button($danger-color);
+    }
+  }
+  
+  // Tabs di navigazione
+  .navigation-tabs {
+    display: flex;
+    margin-bottom: $spacing * 2;
+    border-bottom: 1px solid $border-color;
+    
+    button {
+      background: none;
+      border: none;
+      padding: $spacing;
+      font-size: 1rem;
+      font-weight: 500;
+      color: $secondary-color;
+      cursor: pointer;
+      position: relative;
+      
+      &:hover {
+        color: $dark-color;
+      }
+      
+      &.active {
+        color: $primary-color;
+        font-weight: 600;
+        
+        &:after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background-color: $primary-color;
+        }
+      }
+    }
+  }
+  
+  // Area contenuto principale
+  .content-area {
+    position: relative;
+  }
+  
+  // Lista abbonamenti
+  .subscriptions-list {
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing * 1.5;
+    }
+    
+    .subscription-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: $spacing * 1.5;
+      
+      .subscription-card {
+        @include card;
+        cursor: pointer;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        &.selected {
+          border: 2px solid $primary-color;
+        }
+        
+        h3 {
+          margin-top: 0;
+          color: $dark-color;
+        }
+        
+        .plan-summary {
+          margin: $spacing 0;
+          font-size: 0.9rem;
+          color: $secondary-color;
+        }
+        
+        .card-actions {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: $spacing;
+        }
+      }
+    }
+    
+    .empty-state {
+      @include card;
+      text-align: center;
+      padding: $spacing * 2;
+      color: $secondary-color;
+    }
+    
+    .loading, .error {
+      @include card;
+      text-align: center;
+      padding: $spacing * 2;
+    }
+    
+    .error {
+      border-left: 4px solid $danger-color;
+    }
+  }
+  
+  // Dettagli abbonamento
+  .subscription-details {
+    .details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing * 2;
+      
+      .header-actions {
+        display: flex;
+      }
+    }
+    
+    .details-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $spacing * 2;
+      
+      @media (min-width: 768px) {
+        grid-template-columns: 300px 1fr;
+      }
+      
+      .subscription-info {
+        @include card;
+        
+        h3 {
+          margin-top: 0;
+        }
+        
+        p {
+          margin: $spacing 0;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+      
+      .plans-section {
+        @include card;
+        
+        h3 {
+          margin-top: 0;
+        }
+        
+        .plans-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: $spacing;
+          
+          th, td {
+            padding: $spacing * 0.75;
+            text-align: left;
+            border-bottom: 1px solid $border-color;
+          }
+          
+          th {
+            background-color: $light-color;
+            font-weight: 500;
+          }
+          
+          tr:last-child td {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
+  
+  // Vista clienti
+  .clients-view {
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing * 1.5;
+    }
+    
+    .clients-list {
+      margin-bottom: $spacing * 2;
+      
+      .client-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: $spacing;
+        
+        .client-card {
+          @include card;
+          cursor: pointer;
+          
+          &:hover {
+            background-color: $hover-color;
+          }
+          
+          &.selected {
+            border: 2px solid $primary-color;
+          }
+          
+          h4 {
+            margin-top: 0;
+            margin-bottom: $spacing * 0.5;
+          }
+          
+          p {
+            margin: 0;
+            color: $secondary-color;
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+    
+    .client-subscriptions {
+      .client-subscriptions-table {
+        width: 100%;
+        border-collapse: collapse;
+        @include card;
+        
+        th, td {
+          padding: $spacing * 0.75;
+          text-align: left;
+          border-bottom: 1px solid $border-color;
+        }
+        
+        th {
+          background-color: $light-color;
+          font-weight: 500;
+        }
+        
+        tr:last-child td {
+          border-bottom: none;
+        }
+        
+        select {
+          padding: 0.25rem;
+          border-radius: 3px;
+          border: 1px solid $border-color;
+        }
+      }
+      
+      .empty-state {
+        @include card;
+        text-align: center;
+        padding: $spacing * 2;
+        color: $secondary-color;
+        
+        button {
+          margin-top: $spacing;
+        }
+      }
+    }
+  }
+  
+  // Modali e form
+  .subscription-form,
+  .plan-form,
+  .assign-subscription-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    
+    form {
+      @include card;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      
+      h3 {
+        margin-top: 0;
+        margin-bottom: $spacing * 1.5;
+        border-bottom: 1px solid $border-color;
+        padding-bottom: $spacing * 0.5;
+      }
+      
+      .form-group {
+        margin-bottom: $spacing;
+        
+        label {
+          display: block;
+          margin-bottom: $spacing * 0.3;
+          font-weight: 500;
+        }
+        
+        input, select, textarea {
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid $border-color;
+          border-radius: $radius;
+          font-family: inherit;
+          font-size: inherit;
+          
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            box-shadow: 0 0 0 2px rgba($primary-color, 0.25);
+          }
+        }
+        
+        textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: $spacing * 1.5;
+        
+        button {
+          margin-left: $spacing * 0.5;
+        }
+      }
+    }
+  }
+
+}

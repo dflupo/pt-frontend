@@ -1,6 +1,6 @@
 import './Sidebar.scss'
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { MdHome, MdPeople, MdFitnessCenter, MdLogout } from "react-icons/md";
+import { MdHome, MdPeople, MdFitnessCenter, MdLogout, MdAutorenew } from "react-icons/md";
 import Logo from '../../../assets/Logo.svg'
 import useAuth from '../../../hooks/useAuth';
 
@@ -30,18 +30,27 @@ export default function Sidebar() {
       </div>
       
       <nav className="main-nav">
+
         <Link to="/" className={isActive('/')}>
           <MdHome className="nav-icon" />
           <span>Home</span>
         </Link>
+
         <Link to="/gestione-utenti" className={isActive('/gestione-utenti')}>
           <MdPeople className="nav-icon" />
           <span>Clienti</span>
         </Link>
+
         <Link to="/gestione-sala" className={isActive('/gestione-sala')}>
           <MdFitnessCenter className="nav-icon" />
           <span>Sala e Turni</span>
         </Link>
+
+        <Link to="/abbonamenti" className={isActive('/abbonamenti')}>
+          <MdAutorenew className="nav-icon" />
+          <span>Abbonamenti</span>
+        </Link>
+
       </nav>
 
       <div className="nav-bottom">

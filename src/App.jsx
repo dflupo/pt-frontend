@@ -11,6 +11,7 @@ import LoginPage from './routes/LoginPage/LoginPage';
 import ManageUsers from './routes/ManageUsers/ManageUsers';
 import UserPage from './routes/UserPage/UserPage';
 import ManageBookings from './routes/ManageBookings/ManageBookings';
+import SubscriptionsPage from './routes/SubscriptionsPage/SubscriptionsPage';
 
 export default function App() {
   return (
@@ -19,14 +20,18 @@ export default function App() {
         <Router>
           <ToastContainer />
           <Routes>
-            
+
             <Route path="/login" element={<LoginPage />} />
             
             <Route path="/" element={<RouteGuard><MainLayout /></RouteGuard>}>
+
               <Route index element={<Navigate to="/gestione-utenti" replace />} />
               <Route path="gestione-utenti" element={<ManageUsers />} />
               <Route path="gestione-utenti/:name" element={<UserPage />} />
+
               <Route path="gestione-sala" element={<ManageBookings />} />
+
+              <Route path="abbonamenti" element={<SubscriptionsPage />} />
             </Route>
             
             <Route path="*" element={<Navigate to="/404" replace />} />

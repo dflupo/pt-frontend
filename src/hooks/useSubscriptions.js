@@ -5,6 +5,7 @@ export default function useSubscriptions() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [subscriptionPlans, setSubscriptionPlans] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -62,9 +63,11 @@ export default function useSubscriptions() {
     setError(null);
     try {
       const updatedSubscription = await subscriptionsAPI.updateSubscription(subscriptionId, subscriptionData);
-      setSubscriptions(prev => prev.map(subscription => 
-        subscription.id === subscriptionId ? { ...subscription, ...updatedSubscription } : subscription
-      ));
+      setSubscriptions(prev =>
+        prev.map(subscription =>
+          subscription.id === subscriptionId ? { ...subscription, ...updatedSubscription } : subscription
+        )
+      );
       if (selectedSubscription && selectedSubscription.id === subscriptionId) {
         setSelectedSubscription({ ...selectedSubscription, ...updatedSubscription });
       }
@@ -134,9 +137,9 @@ export default function useSubscriptions() {
     setError(null);
     try {
       const updatedPlan = await subscriptionsAPI.updateSubscriptionPlan(planId, planData);
-      setSubscriptionPlans(prev => prev.map(plan => 
-        plan.id === planId ? { ...plan, ...updatedPlan } : plan
-      ));
+      setSubscriptionPlans(prev =>
+        prev.map(plan => (plan.id === planId ? { ...plan, ...updatedPlan } : plan))
+      );
       return updatedPlan;
     } catch (err) {
       setError(err.response?.data?.detail || 'Error updating subscription plan');
@@ -162,46 +165,64 @@ export default function useSubscriptions() {
     }
   }, []);
 
-  // Assign subscription to client
-  const assignSubscriptionToClient = useCallback(async (subscriptionData) => {
+  // Renew client subscription
+  const renewClientSubscription = useCallback(async (subscriptionId, renewData) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await subscriptionsAPI.assignSubscriptionToClient(subscriptionData);
+      const result = await subscriptionsAPI.renewClientSubscription(subscriptionId, renewData);
+      // Aggiorna lo stato locale se necessario (es. aggiornamento data di scadenza)
       return result;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error assigning subscription to client');
+      setError(err.response?.data?.detail || 'Error renewing subscription');
       throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Get client subscriptions
-  const getClientSubscriptions = useCallback(async (clientId) => {
+  // Get client payments (storico)
+  const getClientPayments = useCallback(async (clientId, filters = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const clientSubs = await subscriptionsAPI.getClientSubscriptions(clientId);
-      return clientSubs;
+      const data = await subscriptionsAPI.getClientPayments(clientId, filters);
+      setPayments(data);
+      return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading client subscriptions');
+      setError(err.response?.data?.detail || 'Error loading client payments');
       return [];
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Update client subscription
-  const updateClientSubscription = useCallback(async (subscriptionId, updateData) => {
+  // Create payment
+  const createPayment = useCallback(async (paymentData) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await subscriptionsAPI.updateClientSubscription(subscriptionId, updateData);
-      return result;
+      const newPayment = await subscriptionsAPI.createPayment(paymentData);
+      // Aggiorna lo storico locale se necessario
+      return newPayment;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error updating client subscription');
+      setError(err.response?.data?.detail || 'Error creating payment');
       throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Get all payments (storico completo)
+  const getAllPayments = useCallback(async (filters = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await subscriptionsAPI.getAllPayments(filters);
+      return data;
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Error loading payments');
+      return [];
     } finally {
       setLoading(false);
     }
@@ -216,6 +237,7 @@ export default function useSubscriptions() {
     subscriptions,
     selectedSubscription,
     subscriptionPlans,
+    payments,
     loading,
     error,
     fetchSubscriptions,
@@ -227,8 +249,11 @@ export default function useSubscriptions() {
     createSubscriptionPlan,
     updateSubscriptionPlan,
     deleteSubscriptionPlan,
-    assignSubscriptionToClient,
-    getClientSubscriptions,
-    updateClientSubscription
+    assignSubscriptionToClient: subscriptionsAPI.assignSubscriptionToClient, // già implementata in API
+    getClientSubscriptions: subscriptionsAPI.getClientSubscriptions, // già implementata in API
+    renewClientSubscription,
+    getClientPayments,
+    createPayment,
+    getAllPayments
   };
 }
