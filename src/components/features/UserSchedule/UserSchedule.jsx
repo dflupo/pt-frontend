@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useBookings from '../../../hooks/useBookings';
+import { MdEdit, MdDelete, MdAccessTime, MdDateRange, MdAddCircle } from 'react-icons/md';
 import './UserSchedule.scss';
 
 const UserSchedule = ({ userId }) => {
@@ -26,7 +27,7 @@ const UserSchedule = ({ userId }) => {
     active: true
   });
 
-  // State per controllare se mostrare la modale di conferma eliminazione
+  // State per controllare se mostrare la conferma eliminazione
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
 
@@ -69,10 +70,26 @@ const UserSchedule = ({ userId }) => {
   // Gestisce il cambio dei campi della form
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    
+    // Speciale gestione per l'orario di inizio che aggiorna automaticamente anche l'orario di fine
+    if (name === 'start_time') {
+      // Calcola orario di fine = orario di inizio + 1 ora
+      const startHour = parseInt(value.split(':')[0], 10);
+      const startMinutes = value.split(':')[1];
+      const endHour = (startHour + 1) % 24; // Gestisce il caso in cui l'ora di inizio è 23
+      const endTime = `${endHour.toString().padStart(2, '0')}:${startMinutes}`;
+      
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        end_time: endTime
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
   };
 
   // Esegui prenotazione automatica
@@ -107,6 +124,8 @@ const UserSchedule = ({ userId }) => {
     });
     setIsEditing(false);
     setEditingScheduleId(null);
+    setShowDeleteConfirm(false);
+    setScheduleToDelete(null);
   };
 
   // Imposta la form per la modifica di uno schedule esistente
@@ -120,12 +139,14 @@ const UserSchedule = ({ userId }) => {
     });
     setIsEditing(true);
     setEditingScheduleId(schedule.id);
+    setShowDeleteConfirm(false);
   };
 
-  // Conferma l'eliminazione di uno schedule
+  // Prepara la conferma dell'eliminazione di uno schedule
   const confirmDelete = (scheduleId) => {
     setScheduleToDelete(scheduleId);
     setShowDeleteConfirm(true);
+    setIsEditing(false);
   };
 
   // Esegue l'eliminazione effettiva
@@ -134,6 +155,8 @@ const UserSchedule = ({ userId }) => {
       await deleteUserSchedule(scheduleToDelete);
       setShowDeleteConfirm(false);
       setScheduleToDelete(null);
+      // Ricarica gli schedule aggiornati
+      await fetchUserSchedules(userId);
     } catch (err) {
       console.error("Errore durante l'eliminazione dello schedule:", err);
     }
@@ -199,148 +222,17 @@ const UserSchedule = ({ userId }) => {
     return days[day] || day;
   };
 
-  return (
-    <div className="schedule-card">
-      <h2>Orari Predefiniti</h2>
-      
-      {error && <div className="error-message">{error}</div>}
-      
-      {loading ? (
-        <div className="loading-indicator">Caricamento orari...</div>
-      ) : (
-        <>
-          {/* Lista degli schedule esistenti */}
-          {userSchedules && userSchedules.length > 0 ? (
-            <div className="schedule-list">
-              {userSchedules.map((schedule) => (
-                <div key={schedule.id} className={`schedule-item ${(!schedule.active || schedule.active === 0) ? 'inactive-schedule' : ''}`}>
-                  <div className="schedule-details">
-                    <div className="schedule-day">{getDayName(schedule.day_of_week)}</div>
-                    <div className="schedule-time">
-                      {secondsToTimeString(schedule.start_time)} - {secondsToTimeString(schedule.end_time)}
-                    </div>
-                    {(!schedule.active || schedule.active === 0) && (
-                      <div className="schedule-status">Inattivo</div>
-                    )}
-                  </div>
-                  <div className="schedule-actions">
-                    <button 
-                      type="button" 
-                      className="edit-button"
-                      onClick={() => handleEdit(schedule)}
-                    >
-                      Modifica
-                    </button>
-                    <button 
-                      type="button" 
-                      className="delete-button"
-                      onClick={() => confirmDelete(schedule.id)}
-                    >
-                      Elimina
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">Nessun orario predefinito impostato</div>
-          )}
-
-          {/* Pulsante per aggiungere un nuovo schedule */}
-          {!isEditing && (
-            <button 
-              type="button" 
-              className="add-schedule-button"
-              onClick={() => setIsEditing(true)}
-            >
-              Aggiungi Orario
-            </button>
-          )}
-
-          {/* Form per la creazione o modifica di uno schedule */}
-          {isEditing && (
-            <div className="schedule-form-container">
-              <h3>{editingScheduleId ? 'Modifica Orario' : 'Nuovo Orario'}</h3>
-              <form onSubmit={handleSubmit} className="schedule-form">
-                <div className="form-group">
-                  <label htmlFor="day_of_week">Giorno:</label>
-                  <select
-                    id="day_of_week"
-                    name="day_of_week"
-                    value={formData.day_of_week}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="monday">Lunedì</option>
-                    <option value="tuesday">Martedì</option>
-                    <option value="wednesday">Mercoledì</option>
-                    <option value="thursday">Giovedì</option>
-                    <option value="friday">Venerdì</option>
-                    <option value="saturday">Sabato</option>
-                    <option value="sunday">Domenica</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="start_time">Orario inizio:</label>
-                  <input
-                    type="time"
-                    id="start_time"
-                    name="start_time"
-                    value={formData.start_time}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="end_time">Orario fine:</label>
-                  <input
-                    type="time"
-                    id="end_time"
-                    name="end_time"
-                    value={formData.end_time}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group checkbox-group">
-                  <label htmlFor="active">Attivo:</label>
-                  <input
-                    type="checkbox"
-                    id="active"
-                    name="active"
-                    checked={formData.active}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="form-actions">
-                  <button type="submit" className="save-button">
-                    Salva
-                  </button>
-                  <button
-                    type="button"
-                    className="cancel-button"
-                    onClick={resetForm}
-                  >
-                    Annulla
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Modale di conferma eliminazione */}
-      {showDeleteConfirm && (
-        <div className="delete-confirm-modal">
-          <div className="modal-content">
-            <h4>Conferma Eliminazione</h4>
-            <p>Sei sicuro di voler eliminare questo orario predefinito?</p>
-            <div className="modal-actions">
+  // Renderizza il pannello laterale (form o conferma eliminazione)
+  const renderSidePanel = () => {
+    const sidePanelClassName = "side-panel " + (showDeleteConfirm ? "delete-confirm-panel" : "schedule-form-container");
+    
+    return (
+      <div className={sidePanelClassName}>
+        {showDeleteConfirm ? (
+          <>
+            <h3>Conferma Eliminazione <MdDelete className="header-icon delete-icon" /></h3>
+            <p className="delete-confirmation-text">Sei sicuro di voler eliminare questo orario predefinito?</p>
+            <div className="form-actions">
               <button
                 type="button"
                 className="confirm-button"
@@ -356,7 +248,146 @@ const UserSchedule = ({ userId }) => {
                 Annulla
               </button>
             </div>
+          </>
+        ) : (
+          <>
+            <h3>{editingScheduleId ? 'Modifica Orario' : 'Aggiungi turno'} {editingScheduleId ? <MdEdit className="header-icon" /> : <MdAddCircle className="header-icon" />}</h3>
+            <form onSubmit={handleSubmit} className="schedule-form">
+              <div className="form-group">
+                <label htmlFor="day_of_week">Giorno:</label>
+                <select
+                  id="day_of_week"
+                  name="day_of_week"
+                  value={formData.day_of_week}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="monday">Lunedì</option>
+                  <option value="tuesday">Martedì</option>
+                  <option value="wednesday">Mercoledì</option>
+                  <option value="thursday">Giovedì</option>
+                  <option value="friday">Venerdì</option>
+                  <option value="saturday">Sabato</option>
+                  <option value="sunday">Domenica</option>
+                </select>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="start_time">Dalle:</label>
+                  <input
+                    type="time"
+                    id="start_time"
+                    name="start_time"
+                    value={formData.start_time}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="end_time">Alle:</label>
+                  <input
+                    type="time"
+                    id="end_time"
+                    name="end_time"
+                    value={formData.end_time}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group checkbox-group">
+                <label htmlFor="active">Attivo:</label>
+                <input
+                  type="checkbox"
+                  id="active"
+                  name="active"
+                  checked={formData.active}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="save-button">
+                  {editingScheduleId ? 'Salva' : 'Aggiungi'}
+                </button>
+                {editingScheduleId && (
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={resetForm}
+                  >
+                    Annulla
+                  </button>
+                )}
+              </div>
+            </form>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="schedule-card">
+      <h2>Orari Predefiniti</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      {loading ? (
+        <div className="loading-indicator">Caricamento orari...</div>
+      ) : (
+        <div className="schedule-layout">
+          <div className="schedule-content">
+            {/* Lista degli schedule esistenti */}
+            {userSchedules && userSchedules.length > 0 ? (
+              <div className="schedule-list">
+                {userSchedules.map((schedule) => (
+                  <div 
+                    key={schedule.id} 
+                    className={`schedule-item ${(!schedule.active || schedule.active === 0) ? 'inactive-schedule' : ''} ${editingScheduleId === schedule.id ? 'active-schedule' : ''}`}
+                  >
+                    <div className="schedule-details">
+                      <div className="schedule-day"><MdDateRange className="icon" /> {getDayName(schedule.day_of_week)}</div>
+                      <div className="schedule-time">
+                        <MdAccessTime className="icon" /> {secondsToTimeString(schedule.start_time)} - {secondsToTimeString(schedule.end_time)}
+                        {(!schedule.active || schedule.active === 0) && (
+                          <span className="schedule-status"> (Inattivo)</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="schedule-actions">
+                      <button 
+                        type="button" 
+                        className="icon-button edit-button"
+                        onClick={() => handleEdit(schedule)}
+                        aria-label="Modifica"
+                        title="Modifica"
+                      >
+                        <MdEdit />
+                      </button>
+                      <button 
+                        type="button" 
+                        className="icon-button delete-button"
+                        onClick={() => confirmDelete(schedule.id)}
+                        aria-label="Elimina"
+                        title="Elimina"
+                      >
+                        <MdDelete />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">Nessun orario predefinito impostato</div>
+            )}
           </div>
+          
+          {/* Pannello laterale (form o conferma eliminazione) */}
+          {renderSidePanel()}
         </div>
       )}
     </div>

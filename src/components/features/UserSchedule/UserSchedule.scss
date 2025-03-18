@@ -1,21 +1,42 @@
 .schedule-card {
-    // Layout a due colonne quando il form è visibile
+    // Layout a due colonne
     .schedule-layout {
       display: flex;
       gap: 20px;
       
-      // Contenitore per la lista e il pulsante aggiungi
+      // Contenitore per la lista
       .schedule-content {
         flex: 1;
       }
       
-      // Form laterale
-      .schedule-form-container {
-        flex: 1;
-        margin-top: 0; // Rimuovi il margin top per allinearlo con la lista
+      // Pannello laterale condiviso (form o conferma eliminazione)
+      .side-panel {
+        flex: 0 0 320px; // Larghezza fissa che non cambia
         background-color: #f5f5f5;
         border-radius: 5px;
         padding: 15px;
+        display: flex;
+        flex-direction: column;
+      }
+  
+      // Stili specifici per il pannello di conferma eliminazione
+      .delete-confirm-panel {
+        h3 {
+          margin-top: 0;
+          margin-bottom: 15px;
+          color: #e74c3c;
+        }
+        p {
+          margin-bottom: 20px;
+        }
+      }
+      
+      // Stili specifici per il form
+      .schedule-form-container {
+        h3 {
+          margin-top: 0;
+          margin-bottom: 15px;
+        }
       }
     }
     
@@ -44,6 +65,11 @@
         opacity: 0.7;
         border-left-color: #aaa;
       }
+  
+      &.active-schedule {
+        background-color: #e6f0f8;
+        border-left-color: #2c3e50;
+      }
     }
   
     .schedule-details {
@@ -60,12 +86,11 @@
     .schedule-time {
       color: #555;
       font-size: 0.95em;
-    }
   
-    .schedule-status {
-      font-size: 0.85em;
-      color: #888;
-      font-style: italic;
+      .schedule-status {
+        color: #888;
+        font-style: italic;
+      }
     }
   
     .schedule-actions {
@@ -120,11 +145,26 @@
       color: white;
     }
   
+    .confirm-button {
+      background-color: #e74c3c;
+      color: white;
+    }
+  
     // Stili per il form
     .schedule-form {
       display: flex;
       flex-direction: column;
       gap: 15px;
+    }
+  
+    .form-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      
+      .form-group {
+        flex: 1;
+      }
     }
   
     .form-group {
@@ -157,46 +197,5 @@
       gap: 10px;
       margin-top: 10px;
     }
-  
-    // Stili per la modale di conferma eliminazione
-    .delete-confirm-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-  
-    .modal-content {
-      background-color: white;
-      border-radius: 5px;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    }
-  
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
-  
-    .confirm-button {
-      background-color: #e74c3c;
-      color: white;
-    }
     
-    // Responsività per dispositivi mobili
-    @media (max-width: 768px) {
-      .schedule-layout {
-        flex-direction: column;
-      }
-    }
   }
