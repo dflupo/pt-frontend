@@ -1,434 +1,418 @@
-// SubscriptionDetailsPage.scss
-@use '../../styles/variables' as *;
+@import '../../styles/_variables.scss';
 
 .subscription-details-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: $spacing-large;
-    
-    .loading-container,
-    .error-container,
-    .not-found-container {
+  padding: $spacing-medium;
+}
+
+/* ================= Subscription Edit Form ================= */
+.subscription-edit-form {
+  max-width: 600px;
+  margin: 0 auto;
+
+  h2 {
+    margin-bottom: $spacing-medium;
+    font-size: $text-large;
+  }
+
+  form {
+    .form-group {
+      margin-bottom: $spacing-medium;
+
+      label {
+        display: block;
+        margin-bottom: $spacing-small;
+        font-weight: bold;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: $spacing-small;
+        font-size: $text-s;
+        border: 1px solid $border-color;
+        border-radius: $br-xs;
+        box-sizing: border-box;
+      }
+    }
+
+    .form-actions {
       display: flex;
-      justify-content: center;
+      justify-content: flex-end;
+      gap: $spacing-small;
+
+      button {
+        padding: $spacing-small $spacing-medium;
+        font-size: $text-s;
+        border: none;
+        border-radius: $br-xs;
+        cursor: pointer;
+
+        &.btn-primary {
+          background-color: $primary-color;
+          color: #fff;
+          &:hover {
+            background-color: $primary-color-hover;
+          }
+        }
+
+        &.btn-secondary {
+          background-color: $secondary-color;
+          color: #fff;
+          &:hover {
+            background-color: $secondary-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ================= Plan Form ================= */
+.plan-form {
+  max-width: 600px;
+  margin: 0 auto;
+  overflow: hidden; // Evita che gli input escano dal container
+
+  h3 {
+    margin-bottom: $spacing-medium;
+    font-size: $text-large;
+  }
+
+  form {
+    .form-group {
+      margin-bottom: $spacing-medium;
+
+      label {
+        display: block;
+        margin-bottom: $spacing-small;
+        font-weight: bold;
+      }
+
+      input {
+        width: 100%;
+        padding: $spacing-small;
+        font-size: $text-s;
+        border: 1px solid $border-color;
+        border-radius: $br-xs;
+        box-sizing: border-box;
+      }
+    }
+
+    /* Campo Prezzo Finale (readOnly) */
+    .form-group:last-of-type {
+      input {
+        background-color: $bg-sec-color;
+        cursor: not-allowed;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: $spacing-small;
+
+      button {
+        padding: $spacing-small $spacing-medium;
+        font-size: $text-s;
+        border: none;
+        border-radius: $br-xs;
+        cursor: pointer;
+
+        &.btn-primary {
+          background-color: $primary-color;
+          color: #fff;
+          &:hover {
+            background-color: $primary-color-hover;
+          }
+        }
+
+        &.btn-secondary {
+          background-color: $secondary-color;
+          color: #fff;
+          &:hover {
+            background-color: $secondary-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ================= Details Header (Title & Description) ================= */
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-large;
+  margin-top: 50px;
+
+  .title-section {
+    flex: 1;
+
+    /* Modificato: hover su tutta la cella (testo ed icona) */
+    .editable-field {
+      display: flex;
       align-items: center;
-      min-height: 300px;
-      font-size: $text-m;
+      gap: $spacing-small;
+      cursor: pointer;
+      
+
+
+      h1,
+      p.description {
+      transition: background-color 0.3s ease;
+      padding: 5px 10px;
+      border-radius: $br-xs;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+        margin: 0;
+        &:hover {
+            background-color: $primary-color-bg;
+          }
+      }
+
+      .edit-icon {
+        cursor: pointer;
+        font-size: $text-large;
+        color: $text-sec-color;
+      }
     }
-    
-    .error-container {
-      color: $danger-text;
-    }
-    
-    .subscription-details {
-      .details-header {
+
+    .inline-edit-container {
+      display: flex;
+      align-items: center;
+      gap: $spacing-small;
+
+      /* Imposta larghezza 50% per input e textarea inline */
+      .inline-edit-input,
+      .inline-edit-textarea {
+        padding: $spacing-small;
+        font-size: $text-m;
+        border: 1px solid $border-color;
+        border-radius: $br-xs;
+        box-sizing: border-box;
+      }
+
+      .inline-edit-input {width: 50%;}
+      .inline-edit-textarea {width: 80%;}
+
+      .inline-edit-actions {
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: $spacing-large;
-        padding-bottom: $spacing-medium;
-        border-bottom: 1px solid $border-color;
-        
-        .title-section {
-          flex-grow: 1;
-          
-          h1 {
-            margin: 0 0 $spacing-small 0;
-            font-size: $text-xxl;
-          }
-          
-          .description {
-            margin: 0;
-            color: $text-sec-color;
-          }
+        gap: $spacing-small;
 
-          .editable-field {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-            padding: $spacing-small;
-            border-radius: $br-xs;
-            transition: background-color 0.2s;
-
-            &:hover {
-              background-color: rgba($primary-color, 0.05);
-
-              .edit-icon {
-                opacity: 1;
-              }
-            }
-
-            .edit-icon {
-              margin-left: $spacing-small;
-              color: $primary-color;
-              opacity: 0;
-              transition: opacity 0.2s;
-              font-size: $text-m;
-            }
-          }
-
-          .inline-edit-container {
-            margin-bottom: $spacing-medium;
-          }
-
-          .inline-edit-input, 
-          .inline-edit-textarea {
-            width: 100%;
-            padding: $spacing-small;
-            border: 1px solid $primary-color;
-            border-radius: $br-xs;
-            font-size: $text-m;
-            outline: none;
-            
-            &:focus {
-              box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
-            }
-          }
-
-          .inline-edit-textarea {
-            resize: vertical;
-            min-height: 100px;
-          }
-
-          .inline-edit-actions {
-            display: flex;
-            gap: $spacing-small;
-            margin-top: $spacing-small;
-          }
-
-          .inline-action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: $spacing-small;
-            border: none;
-            border-radius: $br-xs;
-            cursor: pointer;
-            font-size: $text-m;
-            transition: background-color 0.2s;
-
-            &.success {
-              color: white;
-              background-color: $primary-color;
-
-              &:hover {
-                background-color: $primary-color-hover;
-              }
-            }
-
-            &.danger {
-              color: white;
-              background-color: $danger-text;
-
-              &:hover {
-                background-color: $danger-text;
-              }
-            }
-          }
-        }
-        
-        .actions-section {
-          display: flex;
-          gap: $spacing-small;
-          
-          button {
-            white-space: nowrap;
-          }
-        }
-      }
-      
-      .plans-section {
-        .plans-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: $spacing-medium;
-          
-          h2 {
-            margin: 0;
-            font-size: $text-large;
-          }
-        }
-        
-        .empty-plans {
-          padding: $spacing-large;
-          text-align: center;
-          background-color: $bg-sec-color;
-          border-radius: $br-s;
-        }
-        
-        .plans-table-container {
-          overflow-x: auto;
-        }
-        
-        .plans-table {
-          width: 100%;
-          border-collapse: collapse;
-          
-          th, td {
-            padding: $spacing-medium $spacing-small;
-            text-align: left;
-            border-bottom: 1px solid $border-color;
-          }
-          
-          th {
-            font-weight: 600;
-            background-color: $bg-sec-color;
-          }
-          
-          tr {
-            transition: background-color 0.3s;
-
-            &:hover {
-              background-color: rgba($primary-color, 0.05);
-            }
-
-            &.updated-row {
-              animation: highlight-row 2s ease-in-out;
-            }
-          }
-
-          .editable-cell {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            padding: $spacing-small;
-            border-radius: $br-xs;
-
-            &:hover {
-              background-color: rgba($primary-color, 0.1);
-
-              .edit-icon-small {
-                opacity: 1;
-              }
-            }
-
-            .edit-icon-small {
-              margin-left: $spacing-small;
-              color: $primary-color;
-              opacity: 0;
-              transition: opacity 0.2s;
-              font-size: $text-s;
-            }
-          }
-
-          .inline-edit-field {
-            display: flex;
-            align-items: center;
-            
-            .inline-edit-input {
-              padding: $spacing-small;
-              border: 1px solid $primary-color;
-              border-radius: $br-xs;
-              font-size: $text-s;
-              width: 80px;
-              
-              &:focus {
-                outline: none;
-                box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
-              }
-            }
-            
-            .inline-edit-actions {
-              display: flex;
-              margin-left: $spacing-small;
-            }
-            
-            .inline-action-btn {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 24px;
-              height: 24px;
-              border: none;
-              border-radius: $br-xs;
-              cursor: pointer;
-              font-size: $text-s;
-              margin-left: 2px;
-              transition: background-color 0.2s;
-
-              &.success {
-                color: white;
-                background-color: $primary-color;
-
-                &:hover {
-                  background-color: $primary-color-hover;
-                }
-              }
-
-              &.danger {
-                color: white;
-                background-color: $danger-text;
-
-                &:hover {
-                  background-color: $danger-text;
-                }
-              }
-            }
-          }
-
-          .delete-confirmation {
-            padding: $spacing-medium;
-            background-color: $danger-bg;
-            color: $danger-text;
-            text-align: center;
-
-            .delete-message {
-              margin-bottom: $spacing-small;
-              font-weight: 500;
-            }
-
-            .delete-actions {
-              display: flex;
-              justify-content: center;
-              gap: $spacing-medium;
-            }
-          }
-          
-          .actions-cell {
-            display: flex;
-            gap: $spacing-small;
-            
-            button {
-              padding: $spacing-small;
-              font-size: $text-s;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              
-              svg {
-                font-size: $text-m;
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    .subscription-edit-form,
-    .plan-form {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: $spacing-large;
-      background-color: $bg-sec-color;
-      border-radius: $br-m;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      
-      h2, h3 {
-        margin-top: 0;
-        margin-bottom: $spacing-large;
-        text-align: center;
-      }
-      
-      .form-group {
-        margin-bottom: $spacing-large;
-        
-        label {
-          display: block;
-          margin-bottom: $spacing-small;
-          font-weight: 500;
-        }
-        
-        input, textarea {
-          width: 100%;
-          padding: $spacing-medium;
-          border: 1px solid $border-color;
-          border-radius: $br-xs;
+        .inline-action-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
           font-size: $text-m;
-          
-          &:focus {
-            outline: none;
-            border-color: $primary-color;
-            box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+          border-radius: $br-100;
+          transition: ease-in-out 0.3s;
+
+          &.success {
+            color: $success-text;
+            padding: 6px 6px 3.8px 6px;
+
+            &:hover {
+                background-color: $success-bg;
+            }
+          }
+          &.danger {
+            color: $danger-text;
+            padding: 6.2px 6px 2.8px 6.2px;
+
+            &:hover {
+                background-color: $danger-bg;
+            }
           }
         }
-        
-        textarea {
-          resize: vertical;
-          min-height: 100px;
-        }
-      }
-      
-      .form-actions {
-        display: flex;
-        justify-content: space-between;
-        gap: $spacing-medium;
-        margin-top: $spacing-large;
-        
-        button {
-          flex: 1;
-          padding: $spacing-medium;
-        }
       }
     }
   }
-  
-  // Animazione per il feedback visivo dell'aggiornamento
-  @keyframes highlight-row {
-    0% {
-      background-color: rgba($success-bg, 0.7);
-    }
-    100% {
-      background-color: transparent;
+
+  .actions-section {
+    button.btn-danger {
+      padding: $spacing-small $spacing-medium;
+      font-size: $text-s;
+      border: none;
+      border-radius: $br-xs;
+      background-color: $danger-bg;
+      color: $danger-text;
+      cursor: pointer;
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
-  
-  // Stili comuni per i bottoni
-  .btn {
-    display: inline-block;
-    padding: $spacing-small $spacing-medium;
-    border: none;
-    border-radius: $br-xs;
-    font-size: $text-m;
-    font-weight: 500;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    
-    &:hover {
-      transform: translateY(-1px);
+}
+
+/* ================= Plans Section ================= */
+.plans-section {
+  margin-top: $spacing-large;
+
+  .plans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-medium;
+
+    h2 {
+      margin: 0;
+      font-size: $text-large;
     }
-    
-    &:active {
-      transform: translateY(0);
-    }
-    
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    &.btn-primary {
+
+    button.btn-primary {
+      padding: $spacing-small $spacing-medium;
+      font-size: $text-s;
+      border: none;
+      border-radius: $br-xs;
       background-color: $primary-color;
-      color: white;
-      
+      color: #fff;
+      cursor: pointer;
       &:hover {
         background-color: $primary-color-hover;
       }
     }
-    
-    &.btn-secondary {
-      background-color: $bg-sec-color;
-      color: $text-color;
-      border: 1px solid $border-color;
-      
-      &:hover {
-        background-color: $bg-sec-hover-color;
+  }
+
+  .plans-table-container {
+    overflow-x: auto;
+
+    .plans-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th,
+      td {
+        padding: $spacing-small;
+        border: 1px solid $border-color;
+        text-align: left;
+        vertical-align: middle;
       }
-    }
-    
-    &.btn-danger {
-      background-color: $danger-text;
-      color: white;
-      
-      &:hover {
-        background-color: $danger-text;
+
+      th {
+        background-color: $bg-sec-color;
       }
-    }
-    
-    &.btn-sm {
-      padding: $spacing-small;
-      font-size: $text-s;
+
+      tr.updated-row {
+        background-color: $success-bg;
+      }
+
+      .editable-cell {
+        display: flex;
+        align-items: center;
+        gap: $spacing-small;
+        cursor: pointer;
+
+        .inner {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            border-radius: $br-xs;
+            transition: ease-in-out 0.3s;
+
+            .icon{display: flex; align-items: center;}
+
+            &:hover {
+                background-color: $primary-color-bg;
+            }
+
+        }
+
+
+      }
+
+      .inline-edit-field {
+        display: flex;
+        align-items: center;
+        gap: $spacing-small;
+      }
+
+      .actions-cell {
+        text-align: center;
+
+        button.btn-sm {
+          padding: 5px 15px 1px 15px;
+          font-size: $text-large;
+          border: none;
+          border-radius: $br-xs;
+          cursor: pointer;
+
+          &.btn-danger {
+            background-color: $danger-bg;
+            color: $danger-text;
+            &:hover {
+              opacity: 0.8;
+            }
+          }
+
+          &.btn-secondary {
+            background-color: $secondary-color;
+            color: #fff;
+            &:hover {
+              background-color: $secondary-color;
+            }
+          }
+        }
+      }
     }
   }
+
+  .empty-plans {
+    text-align: center;
+    padding: $spacing-medium;
+
+    p {
+      margin: 0;
+      font-size: $text-m;
+      color: $text-sec-color;
+    }
+  }
+}
+
+/* ================= Delete Confirmation Row ================= */
+.delete-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-small;
+  background-color: #fff; // Mantiene lo sfondo della riga
+  border: 1px solid $border-color;
+  border-radius: $br-xs;
+
+  span {
+    flex: 1;
+    font-size: $text-m;
+  }
+
+  .delete-actions {
+    display: flex;
+    gap: $spacing-small;
+
+    button {
+      padding: $spacing-small $spacing-medium;
+      font-size: $text-xs;
+      border: none;
+      border-radius: $br-xs;
+      cursor: pointer;
+
+      &.btn-danger {
+        background-color: $danger-bg;
+        color: $danger-text;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      &.btn-secondary {
+        background-color: $secondary-color;
+        color: #fff;
+        &:hover {
+          background-color: $secondary-color;
+        }
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MdEdit, MdCheck, MdClose, MdDelete } from 'react-icons/md';
 import useSubscriptions from '../../hooks/useSubscriptions';
 import './SubscriptionDetailsPage.scss';
+import TopBar from '../../components/common/TopBar/TopBar';
 
 const SubscriptionDetailsPage = () => {
   const { subscriptionName } = useParams();
@@ -27,6 +28,8 @@ const SubscriptionDetailsPage = () => {
   const [editingPlanField, setEditingPlanField] = useState(null);
   const [deletingPlanId, setDeletingPlanId] = useState(null);
   const [updateFeedback, setUpdateFeedback] = useState({ planId: null, show: false });
+  // Nuovo stato per gestire modifiche inline dei piani
+  const [localPlans, setLocalPlans] = useState([]);
 
   const {
     subscriptions,
@@ -55,6 +58,11 @@ const SubscriptionDetailsPage = () => {
       }
     });
   }, [fetchSubscriptions, fetchSubscriptionById, fetchSubscriptionPlans, subscriptionName, navigate]);
+
+  // Sincronizza lo stato locale dei piani con quello globale
+  useEffect(() => {
+    setLocalPlans(subscriptionPlans);
+  }, [subscriptionPlans]);
 
   useEffect(() => {
     if (selectedSubscription) {
@@ -90,10 +98,24 @@ const SubscriptionDetailsPage = () => {
 
   const handlePlanInputChange = (e) => {
     const { name, value } = e.target;
-    const parsedValue = name === 'duration_months' ? parseInt(value) || '' : 
-                        name === 'price' || name === 'discount' ? parseFloat(value) || 0 : 
-                        value;
+    let parsedValue;
+    if (name === 'duration_months') {
+      parsedValue = parseInt(value) || '';
+    } else if (name === 'price') {
+      parsedValue = parseFloat(value) || 0;
+    } else if (name === 'discount') {
+      parsedValue = parseFloat(value) || 0;
+    } else {
+      parsedValue = value;
+    }
     setPlanFormData(prev => ({ ...prev, [name]: parsedValue }));
+  };
+
+  // Specifico onFocus per lo sconto: se il valore è 0 lo svuoto
+  const handleDiscountFocus = (e) => {
+    if (e.target.value === "0" || e.target.value === "0.00") {
+      setPlanFormData(prev => ({ ...prev, discount: '' }));
+    }
   };
 
   const handleInlineTitleChange = (e) => {
@@ -220,7 +242,7 @@ const SubscriptionDetailsPage = () => {
 
   const handleInlinePlanChange = (e, planId, field) => {
     const value = e.target.value;
-    const updatedPlans = subscriptionPlans.map(plan => {
+    setLocalPlans(prev => prev.map(plan => {
       if (plan.id === planId) {
         let parsedValue;
         if (field === 'duration_months') {
@@ -233,26 +255,11 @@ const SubscriptionDetailsPage = () => {
         return { ...plan, [field]: parsedValue };
       }
       return plan;
-    });
-    // Aggiorniamo lo stato locale
-    const planIndex = subscriptionPlans.findIndex(p => p.id === planId);
-    if (planIndex !== -1) {
-      const newSubscriptionPlans = [...subscriptionPlans];
-      let parsedValue;
-      if (field === 'duration_months') {
-        parsedValue = parseInt(value) || '';
-      } else if (field === 'price' || field === 'discount') {
-        parsedValue = parseFloat(value) || 0;
-      } else {
-        parsedValue = value;
-      }
-      newSubscriptionPlans[planIndex] = { ...newSubscriptionPlans[planIndex], [field]: parsedValue };
-      // Non aggiorniamo lo stato globale qui, solo la visualizzazione
-    }
+    }));
   };
 
   const saveInlinePlanEdit = async (planId) => {
-    const planToUpdate = subscriptionPlans.find(plan => plan.id === planId);
+    const planToUpdate = localPlans.find(plan => plan.id === planId);
     if (!planToUpdate) return;
 
     try {
@@ -265,7 +272,7 @@ const SubscriptionDetailsPage = () => {
       setEditingPlanId(null);
       setEditingPlanField(null);
       
-      // Mostra il feedback visivo
+      // Feedback visivo
       setUpdateFeedback({ planId, show: true });
       setTimeout(() => setUpdateFeedback({ planId: null, show: false }), 2000);
       
@@ -280,7 +287,6 @@ const SubscriptionDetailsPage = () => {
   const cancelInlinePlanEdit = () => {
     setEditingPlanId(null);
     setEditingPlanField(null);
-    // Resetta i valori modificati richiedendo nuovamente i dati
     if (selectedSubscription) {
       fetchSubscriptionPlans(selectedSubscription.id);
     }
@@ -319,6 +325,11 @@ const SubscriptionDetailsPage = () => {
     return <div className="not-found-container">Abbonamento non trovato</div>;
   }
 
+  // Calcolo in tempo reale del prezzo finale per il piano
+  const finalPrice = planFormData.price
+    ? (planFormData.price * (1 - ((parseFloat(planFormData.discount) || 0) / 100))).toFixed(2)
+    : '0.00';
+
   const renderSubscriptionEditForm = () => (
     <div className="subscription-edit-form">
       <h2>Modifica Abbonamento</h2>
@@ -329,6 +340,7 @@ const SubscriptionDetailsPage = () => {
             type="text"
             id="name"
             name="name"
+            placeholder="Inserisci nome abbonamento"
             value={formData.name || ''}
             onChange={handleInputChange}
             required
@@ -340,6 +352,7 @@ const SubscriptionDetailsPage = () => {
           <textarea
             id="description"
             name="description"
+            placeholder="Inserisci descrizione"
             value={formData.description || ''}
             onChange={handleInputChange}
             rows="3"
@@ -370,6 +383,7 @@ const SubscriptionDetailsPage = () => {
             type="number"
             id="duration_months"
             name="duration_months"
+            placeholder="Inserisci durata (mesi)"
             value={planFormData.duration_months}
             onChange={handlePlanInputChange}
             min="1"
@@ -383,6 +397,7 @@ const SubscriptionDetailsPage = () => {
             type="number"
             id="price"
             name="price"
+            placeholder="Inserisci prezzo (€)"
             value={planFormData.price}
             onChange={handlePlanInputChange}
             step="0.01"
@@ -397,11 +412,25 @@ const SubscriptionDetailsPage = () => {
             type="number"
             id="discount"
             name="discount"
+            placeholder="Inserisci sconto (%)"
             value={planFormData.discount}
+            onFocus={handleDiscountFocus}
             onChange={handlePlanInputChange}
             step="0.01"
             min="0"
             max="100"
+          />
+        </div>
+        
+        {/* Campo prezzo finale in tempo reale */}
+        <div className="form-group">
+          <label htmlFor="final_price">Prezzo Finale (€)</label>
+          <input
+            type="text"
+            id="final_price"
+            name="final_price"
+            value={finalPrice}
+            readOnly
           />
         </div>
         
@@ -434,6 +463,7 @@ const SubscriptionDetailsPage = () => {
 
   const renderSubscriptionDetails = () => (
     <div className="subscription-details">
+        <TopBar title={"Dettagli Abbonamento"}/>
       <div className="details-header">
         <div className="title-section">
           {editingTitleInline ? (
@@ -454,9 +484,11 @@ const SubscriptionDetailsPage = () => {
               </div>
             </div>
           ) : (
-            <div className="editable-field" onClick={() => setEditingTitleInline(true)}>
-              <h1>{selectedSubscription.name}</h1>
-              <MdEdit className="edit-icon" />
+            <div className="editable-field">
+                <h1 onClick={() => setEditingTitleInline(true)}>
+                    {selectedSubscription.name} 
+                    <span><MdEdit className="edit-icon" onClick={() => setEditingTitleInline(true)} /></span>
+                </h1>
             </div>
           )}
           
@@ -478,9 +510,11 @@ const SubscriptionDetailsPage = () => {
               </div>
             </div>
           ) : (
-            <div className="editable-field" onClick={() => setEditingDescriptionInline(true)}>
-              <p className="description">{selectedSubscription.description || 'Aggiungi una descrizione...'}</p>
-              <MdEdit className="edit-icon" />
+            <div className="editable-field">
+              <p className="description" onClick={() => setEditingDescriptionInline(true)}>
+                {selectedSubscription.description || 'Aggiungi una descrizione...'}
+                <MdEdit className="edit-icon" onClick={() => setEditingDescriptionInline(true)} />
+              </p>
             </div>
           )}
         </div>
@@ -490,7 +524,7 @@ const SubscriptionDetailsPage = () => {
             className="btn btn-danger"
             onClick={handleDeleteSubscription}
           >
-            Elimina
+            Elimina Abbonamento
           </button>
         </div>
       </div>
@@ -508,11 +542,10 @@ const SubscriptionDetailsPage = () => {
         </div>
         
         {isAddingPlan && renderPlanForm()}
-        
         {editPlanId && renderPlanForm()}
         
         {!isAddingPlan && !editPlanId && (
-          subscriptionPlans.length > 0 ? (
+          localPlans.length > 0 ? (
             <div className="plans-table-container">
               <table className="plans-table">
                 <thead>
@@ -525,13 +558,11 @@ const SubscriptionDetailsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {subscriptionPlans.map(plan => (
+                  {localPlans.map(plan => (
                     <tr key={plan.id} className={updateFeedback.show && updateFeedback.planId === plan.id ? 'updated-row' : ''}>
                       {deletingPlanId === plan.id ? (
                         <td colSpan="5" className="delete-confirmation">
-                          <div className="delete-message">
-                            Sei sicuro di voler eliminare il piano di {plan.duration_months} mesi?
-                          </div>
+                          <span>Sei sicuro di voler eliminare il piano di {plan.duration_months} mesi?</span>
                           <div className="delete-actions">
                             <button className="btn btn-sm btn-danger" onClick={() => handleDeletePlan(plan.id)}>
                               Elimina
@@ -564,8 +595,10 @@ const SubscriptionDetailsPage = () => {
                               </div>
                             ) : (
                               <div className="editable-cell" onClick={() => handleInlinePlanEdit(plan.id, 'duration_months')}>
-                                {plan.duration_months}
-                                <MdEdit className="edit-icon-small" />
+                                <div className="inner">
+                                    <span className='value'>{plan.duration_months}</span>
+                                    <span className='icon'><MdEdit className="edit-icon-small" /></span>
+                                </div>
                               </div>
                             )}
                           </td>
@@ -591,8 +624,10 @@ const SubscriptionDetailsPage = () => {
                               </div>
                             ) : (
                               <div className="editable-cell" onClick={() => handleInlinePlanEdit(plan.id, 'price')}>
-                                {plan.price.toFixed(2)}
-                                <MdEdit className="edit-icon-small" />
+                                <div className="inner">
+                                    <span className='value'>{plan.price.toFixed(2)}</span>
+                                    <span className='icon'><MdEdit className="edit-icon-small" /></span>
+                                </div>
                               </div>
                             )}
                           </td>
@@ -619,8 +654,10 @@ const SubscriptionDetailsPage = () => {
                               </div>
                             ) : (
                               <div className="editable-cell" onClick={() => handleInlinePlanEdit(plan.id, 'discount')}>
-                                {(plan.discount || 0).toFixed(2)}
-                                <MdEdit className="edit-icon-small" />
+                                <div className="inner">
+                                    <span className='value'>{(plan.discount || 0).toFixed(2)}</span>
+                                    <span className='icon'><MdEdit className="edit-icon-small" /></span>
+                                </div>
                               </div>
                             )}
                           </td>
