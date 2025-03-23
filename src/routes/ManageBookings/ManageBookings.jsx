@@ -36,14 +36,16 @@ export default function ManageBookings() {
   
   // Funzione per ottenere l'inizio della settimana (lunedì)
   function getStartOfWeek(date) {
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(date.setDate(diff));
+    const newDate = new Date(date);
+    const day = newDate.getDay();
+    const diff = newDate.getDate() - day + (day === 0 ? -6 : 1);
+    newDate.setDate(diff);
+    return newDate;
   }
   
   // Funzione per ottenere la fine della settimana (domenica)
   function getEndOfWeek(date) {
-    const startOfWeek = getStartOfWeek(new Date(date));
+    const startOfWeek = getStartOfWeek(date);
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     return endOfWeek;
@@ -51,7 +53,14 @@ export default function ManageBookings() {
   
   // Funzione per formattare la data nel formato richiesto dall'API
   function formatDateForAPI(date) {
-    return date.toISOString().split('T')[0];
+    // Per start_date, impostiamo l'ora a 00:00:00
+    const isoString = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0, 0, 0
+    ).toISOString();
+    return isoString;
   }
   
   // Navigazione alla settimana precedente con transizione fluida
@@ -313,6 +322,7 @@ export default function ManageBookings() {
         await fetchSlots(filters);
       } catch (err) {
         console.error("Errore nel caricamento degli slot:", err);
+        // Non facciamo nulla qui perché l'errore è già gestito da useBookings
       }
     };
     

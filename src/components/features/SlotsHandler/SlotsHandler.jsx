@@ -226,7 +226,11 @@ export default function SlotsHandler({
           Caricamento...
         </div>
       ) : error ? (
-        <div className="error-message fade-in">{error}</div>
+        <div className="error-message fade-in">
+          {typeof error === 'string' 
+            ? error 
+            : error?.detail?.[0]?.msg || 'Si è verificato un errore nel caricamento degli slot'}
+        </div>
       ) : (
         <div 
           ref={weekdaysRef}
