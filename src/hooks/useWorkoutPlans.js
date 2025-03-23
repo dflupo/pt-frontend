@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { workoutPlansAPI } from '../api/workoutPlans';
+import workoutPlansAPI from '../api/workoutPlans';
 
 export default function useWorkoutPlans() {
   const [workoutPlans, setWorkoutPlans] = useState([]);
@@ -16,8 +16,8 @@ export default function useWorkoutPlans() {
       setWorkoutPlans(data);
       return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading workout plans');
-      return [];
+      setError(err.message || 'Errore nel caricamento dei piani di allenamento');
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -32,7 +32,7 @@ export default function useWorkoutPlans() {
       setSelectedPlan(data);
       return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading workout plan');
+      setError(err.message || 'Errore nel caricamento del piano di allenamento');
       return null;
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ export default function useWorkoutPlans() {
       setWorkoutPlans(prev => [...prev, newPlan]);
       return newPlan;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error creating workout plan');
+      setError(err.message || 'Errore nella creazione del piano di allenamento');
       throw err;
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ export default function useWorkoutPlans() {
       }
       return updatedPlan;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error updating workout plan');
+      setError(err.message || 'Errore nella aggiornamento del piano di allenamento');
       throw err;
     } finally {
       setLoading(false);
@@ -88,7 +88,7 @@ export default function useWorkoutPlans() {
       }
       return true;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error deleting workout plan');
+      setError(err.message || 'Errore nella cancellazione del piano di allenamento');
       throw err;
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export default function useWorkoutPlans() {
       
       return newSet;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error adding set to workout plan');
+      setError(err.message || 'Errore nell\'aggiunta di un set al piano di allenamento');
       throw err;
     } finally {
       setLoading(false);
@@ -148,7 +148,7 @@ export default function useWorkoutPlans() {
       
       return newExercise;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error adding exercise to set');
+      setError(err.message || 'Errore nell\'aggiunta di un esercizio al set');
       throw err;
     } finally {
       setLoading(false);
@@ -160,11 +160,11 @@ export default function useWorkoutPlans() {
     setLoading(true);
     setError(null);
     try {
-      const plans = await workoutPlansAPI.getUserWorkoutPlans(userId);
-      return plans;
+      const data = await workoutPlansAPI.getUserWorkoutPlans(userId);
+      return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading user workout plans');
-      return [];
+      setError(err.message || 'Errore nel caricamento dei piani di allenamento dell\'utente');
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -178,7 +178,7 @@ export default function useWorkoutPlans() {
       const result = await workoutPlansAPI.assignWorkoutPlanToUser(userId, assignData);
       return result;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error assigning workout plan to user');
+      setError(err.message || 'Errore nell\'assegnazione del piano di allenamento all\'utente');
       throw err;
     } finally {
       setLoading(false);

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { subscriptionsAPI } from '../api/subscriptions';
+import subscriptionsAPI from '../api/subscriptions';
 
 export default function useSubscriptions() {
   const [subscriptions, setSubscriptions] = useState([]);
@@ -18,8 +18,8 @@ export default function useSubscriptions() {
       setSubscriptions(data);
       return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading subscriptions');
-      return [];
+      setError(err.message || 'Errore nel caricamento degli abbonamenti');
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,7 @@ export default function useSubscriptions() {
       setSelectedSubscription(data);
       return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading subscription');
+      setError(err.message || 'Errore nel caricamento della sottoscrizione');
       return null;
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export default function useSubscriptions() {
       setSubscriptions(prev => [...prev, newSubscription]);
       return newSubscription;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error creating subscription');
+      setError(err.message || 'Errore nella creazione della sottoscrizione');
       throw err;
     } finally {
       setLoading(false);
@@ -73,7 +73,7 @@ export default function useSubscriptions() {
       }
       return updatedSubscription;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error updating subscription');
+      setError(err.message || 'Errore nell\'aggiornamento della sottoscrizione');
       throw err;
     } finally {
       setLoading(false);
@@ -92,7 +92,7 @@ export default function useSubscriptions() {
       }
       return true;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error deleting subscription');
+      setError(err.message || 'Errore nella cancellazione della sottoscrizione');
       throw err;
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export default function useSubscriptions() {
       setSubscriptionPlans(plans);
       return plans;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading subscription plans');
+      setError(err.message || 'Errore nel caricamento dei piani di sottoscrizione');
       return [];
     } finally {
       setLoading(false);
@@ -124,7 +124,7 @@ export default function useSubscriptions() {
       setSubscriptionPlans(prev => [...prev, newPlan]);
       return newPlan;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error creating subscription plan');
+      setError(err.message || 'Errore nella creazione del piano di sottoscrizione');
       throw err;
     } finally {
       setLoading(false);
@@ -142,7 +142,7 @@ export default function useSubscriptions() {
       );
       return updatedPlan;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error updating subscription plan');
+      setError(err.message || 'Errore nell\'aggiornamento del piano di sottoscrizione');
       throw err;
     } finally {
       setLoading(false);
@@ -158,7 +158,7 @@ export default function useSubscriptions() {
       setSubscriptionPlans(prev => prev.filter(plan => plan.id !== planId));
       return true;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error deleting subscription plan');
+      setError(err.message || 'Errore nella cancellazione del piano di sottoscrizione');
       throw err;
     } finally {
       setLoading(false);
@@ -174,7 +174,7 @@ export default function useSubscriptions() {
       // Aggiorna lo stato locale se necessario (es. aggiornamento data di scadenza)
       return result;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error renewing subscription');
+      setError(err.message || 'Errore nel rinnovo della sottoscrizione');
       throw err;
     } finally {
       setLoading(false);
@@ -190,7 +190,7 @@ export default function useSubscriptions() {
       setPayments(data);
       return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading client payments');
+      setError(err.message || 'Errore nel caricamento dei pagamenti del cliente');
       return [];
     } finally {
       setLoading(false);
@@ -206,7 +206,7 @@ export default function useSubscriptions() {
       // Aggiorna lo storico locale se necessario
       return newPayment;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error creating payment');
+      setError(err.message || 'Errore nella creazione del pagamento');
       throw err;
     } finally {
       setLoading(false);
@@ -221,7 +221,7 @@ export default function useSubscriptions() {
       const data = await subscriptionsAPI.getAllPayments(filters);
       return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error loading payments');
+      setError(err.message || 'Errore nel caricamento dei pagamenti');
       return [];
     } finally {
       setLoading(false);
@@ -232,6 +232,35 @@ export default function useSubscriptions() {
   useEffect(() => {
     fetchSubscriptions();
   }, [fetchSubscriptions]);
+
+  const getAllSubscriptions = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await subscriptionsAPI.getAllSubscriptions();
+      setSubscriptions(data);
+      return data;
+    } catch (err) {
+      setError(err.message || 'Errore nel caricamento degli abbonamenti');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getClientSubscriptions = async (clientId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await subscriptionsAPI.getClientSubscriptions(clientId);
+      return data;
+    } catch (err) {
+      setError(err.message || 'Errore nel caricamento degli abbonamenti del cliente');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     subscriptions,
@@ -250,10 +279,11 @@ export default function useSubscriptions() {
     updateSubscriptionPlan,
     deleteSubscriptionPlan,
     assignSubscriptionToClient: subscriptionsAPI.assignSubscriptionToClient, // già implementata in API
-    getClientSubscriptions: subscriptionsAPI.getClientSubscriptions, // già implementata in API
+    getClientSubscriptions,
     renewClientSubscription,
     getClientPayments,
     createPayment,
-    getAllPayments
+    getAllPayments,
+    getAllSubscriptions
   };
 }

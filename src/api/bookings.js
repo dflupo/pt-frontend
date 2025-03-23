@@ -1,144 +1,16 @@
 import api from './axiosConfig';
 
 export const bookingsAPI = {
-  // ===== SLOTS =====
-  
-  // Get all slots with optional filters
-  getSlots: async (filters = {}) => {
-    try {
-      // filters can include: start_date, end_time, etc.
-      const response = await api.get('/slots', {
-        params: filters,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Get slots error:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Get slot by ID
-  getSlotById: async (slotId) => {
-    try {
-      const response = await api.get(`/slots/${slotId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Get slot ${slotId} error:`, error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Create a new slot
-  createSlot: async (slotData) => {
-    try {
-      const response = await api.post('/slots', slotData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Create slot error:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Update a slot
-  updateSlot: async (slotId, slotData) => {
-    try {
-      const response = await api.put(`/slots/${slotId}`, slotData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Update slot ${slotId} error:`, error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Delete a slot
-  deleteSlot: async (slotId) => {
-    try {
-      const response = await api.delete(`/slots/${slotId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Delete slot ${slotId} error:`, error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Generate slots based on template
-  generateSlots: async () => {
-    try {
-      const response = await api.post('/generate-slots', {}, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Generate slots error:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
   // ===== SLOT TEMPLATES =====
   
-  // Get all slot templates
-  getSlotTemplates: async () => {
-    try {
-      const response = await api.get('/slot-templates', {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Get slot templates error:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Get slot template by ID
-  getSlotTemplateById: async (templateId) => {
-    try {
-      const response = await api.get(`/slot-templates/${templateId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Get slot template ${templateId} error:`, error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Create a new slot template
+  /**
+   * Crea un nuovo template di slot
+   * @param {Object} templateData - Dati del template (day_of_week, start_time, end_time, max_capacity)
+   * @returns {Promise<Object>} Template creato
+   */
   createSlotTemplate: async (templateData) => {
     try {
-      const response = await api.post('/slot-templates', templateData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.post('/slot-templates', templateData);
       return response.data;
     } catch (error) {
       console.error('Create slot template error:', error.response ? error.response.data : error.message);
@@ -146,48 +18,92 @@ export const bookingsAPI = {
     }
   },
 
-  // Update a slot template
-  updateSlotTemplate: async (templateId, templateData) => {
+  /**
+   * Ottiene la lista di tutti i template
+   * @returns {Promise<Array>} Lista dei template
+   */
+  getSlotTemplates: async () => {
     try {
-      const response = await api.put(`/slot-templates/${templateId}`, templateData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.get('/slot-templates');
       return response.data;
     } catch (error) {
-      console.error(`Update slot template ${templateId} error:`, error.response ? error.response.data : error.message);
+      console.error('Get slot templates error:', error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
-  // Delete a slot template
-  deleteSlotTemplate: async (templateId) => {
+  /**
+   * Ottiene un template specifico
+   * @param {number} templateId - ID del template
+   * @returns {Promise<Object>} Dettagli del template
+   */
+  getSlotTemplateById: async (templateId) => {
     try {
-      const response = await api.delete(`/slot-templates/${templateId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.get(`/slot-templates/${templateId}`);
       return response.data;
     } catch (error) {
-      console.error(`Delete slot template ${templateId} error:`, error.response ? error.response.data : error.message);
+      console.error(`Get slot template ${templateId} error:`, error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  // ===== SLOTS =====
+  
+  /**
+   * Crea un nuovo slot
+   * @param {Object} slotData - Dati dello slot (date, start_time, end_time, max_capacity)
+   * @returns {Promise<Object>} Slot creato
+   */
+  createSlot: async (slotData) => {
+    try {
+      const response = await api.post('/slots', slotData);
+      return response.data;
+    } catch (error) {
+      console.error('Create slot error:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Ottiene la lista degli slot con filtri opzionali
+   * @param {Object} params - Parametri di filtro (start_date, end_date)
+   * @returns {Promise<Array>} Lista degli slot
+   */
+  getSlots: async (params = {}) => {
+    try {
+      const response = await api.get('/slots', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Get slots error:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Ottiene uno slot specifico
+   * @param {number} slotId - ID dello slot
+   * @returns {Promise<Object>} Dettagli dello slot
+   */
+  getSlotById: async (slotId) => {
+    try {
+      const response = await api.get(`/slots/${slotId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Get slot ${slotId} error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
   // ===== BOOKINGS =====
   
-  // Create a booking
+  /**
+   * Crea una nuova prenotazione
+   * @param {Object} bookingData - Dati della prenotazione (user_id, slot_id)
+   * @returns {Promise<Object>} Prenotazione creata
+   */
   createBooking: async (bookingData) => {
     try {
-      const response = await api.post('/bookings', bookingData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.post('/bookings', bookingData);
       return response.data;
     } catch (error) {
       console.error('Create booking error:', error.response ? error.response.data : error.message);
@@ -195,66 +111,44 @@ export const bookingsAPI = {
     }
   },
 
-  // Get bookings for a user
-  getUserBookings: async (userId, futureOnly = true) => {
+  /**
+   * Ottiene la lista delle prenotazioni con filtri opzionali
+   * @param {Object} params - Parametri di filtro (start_date, end_date)
+   * @returns {Promise<Array>} Lista delle prenotazioni
+   */
+  getBookings: async (params = {}) => {
     try {
-      const response = await api.get(`/bookings/user/${userId}`, {
-        params: { future_only: futureOnly },
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.get('/bookings', { params });
       return response.data;
     } catch (error) {
-      console.error(`Get user bookings error:`, error.response ? error.response.data : error.message);
+      console.error('Get bookings error:', error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
-  // Get bookings for a slot
-  getSlotBookings: async (slotId) => {
+  /**
+   * Ottiene una prenotazione specifica
+   * @param {number} bookingId - ID della prenotazione
+   * @returns {Promise<Object>} Dettagli della prenotazione
+   */
+  getBookingById: async (bookingId) => {
     try {
-      const response = await api.get(`/bookings/slot/${slotId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.get(`/bookings/${bookingId}`);
       return response.data;
     } catch (error) {
-      console.error(`Get slot bookings error:`, error.response ? error.response.data : error.message);
+      console.error(`Get booking ${bookingId} error:`, error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
-  // Move a booking from one slot to another
-  moveBooking: async (userId, fromSlotId, toSlotId) => {
-    try {
-      const response = await api.post('/bookings/move', null, {
-        params: {
-          user_id: userId,
-          from_slot_id: fromSlotId,
-          to_slot_id: toSlotId
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Move booking error:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Delete a booking
+  /**
+   * Elimina una prenotazione
+   * @param {number} bookingId - ID della prenotazione
+   * @returns {Promise<Object>} Risultato dell'operazione
+   */
   deleteBooking: async (bookingId) => {
     try {
-      const response = await api.delete(`/bookings/${bookingId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.delete(`/bookings/${bookingId}`);
       return response.data;
     } catch (error) {
       console.error(`Delete booking ${bookingId} error:`, error.response ? error.response.data : error.message);
@@ -262,83 +156,37 @@ export const bookingsAPI = {
     }
   },
 
-  // ===== USER SCHEDULES =====
-  
-  // Get all schedules for a user
-  getUserSchedules: async (userId) => {
+  // ===== AUTOBOOKING =====
+
+  /**
+   * Genera prenotazioni automatiche per un periodo
+   * @param {Object} params - Parametri (start_date, end_date)
+   * @returns {Promise<Object>} Risultato dell'operazione
+   */
+  generateAutobooking: async (params) => {
     try {
-      const response = await api.get(`/user-schedules/${userId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.post('/autobooking/generate', null, { params });
       return response.data;
     } catch (error) {
-      console.error(`Get user schedules error:`, error.response ? error.response.data : error.message);
+      console.error('Generate autobooking error:', error.response ? error.response.data : error.message);
       throw error;
     }
   },
 
-  // Create a new user schedule
-  createUserSchedule: async (scheduleData) => {
+  /**
+   * Ottiene lo stato dell'autobooking per un periodo
+   * @param {Object} params - Parametri (start_date, end_date)
+   * @returns {Promise<Object>} Stato dell'autobooking
+   */
+  getAutobookingStatus: async (params) => {
     try {
-      const response = await api.post('/user-schedules', scheduleData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.get('/autobooking/status', { params });
       return response.data;
     } catch (error) {
-      console.error('Create user schedule error:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Update a user schedule
-  updateUserSchedule: async (scheduleId, scheduleData) => {
-    try {
-      const response = await api.put(`/user-schedules/${scheduleId}`, scheduleData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Update user schedule ${scheduleId} error:`, error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Delete a user schedule
-  deleteUserSchedule: async (scheduleId) => {
-    try {
-      const response = await api.delete(`/user-schedules/${scheduleId}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Delete user schedule ${scheduleId} error:`, error.response ? error.response.data : error.message);
-      throw error;
-    }
-  },
-
-  // Auto-book users into slots based on their schedules
-  autoBookUsers: async (autoBookData) => {
-    try {
-      const response = await api.post('/auto-book', autoBookData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Auto-book users error:', error.response ? error.response.data : error.message);
+      console.error('Get autobooking status error:', error.response ? error.response.data : error.message);
       throw error;
     }
   }
 };
+
+export default bookingsAPI;

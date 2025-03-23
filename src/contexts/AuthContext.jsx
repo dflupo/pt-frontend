@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { usersAPI } from '../api/users';
+import { authAPI } from '../api/auth';
 
 export const AuthContext = createContext({
   user: null,
@@ -18,13 +18,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('access_token');
-      const userId = localStorage.getItem('user_id');
       
-      if (token && userId) {
+      if (token) {
         try {
           setLoadingUser(true);
-          // Carica i dati dell'utente usando l'ID salvato
-          const userData = await usersAPI.getUserById(userId);
+          // Carica i dati dell'utente usando il token
+          const userData = await authAPI.getCurrentUser();
           setUser(userData);
           setIsAuthenticated(true);
         } catch (error) {
@@ -32,7 +31,6 @@ export const AuthProvider = ({ children }) => {
           // In caso di errore nel recupero dei dati utente, rimuovi i token
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
-          localStorage.removeItem('user_id');
           setIsAuthenticated(false);
           setUser(null);
         } finally {

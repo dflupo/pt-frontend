@@ -1,16 +1,14 @@
 import api from './axiosConfig';
 
-export const subscriptionsAPI = {
+const subscriptionsAPI = {
   // Subscription types
   getAllSubscriptions: async () => {
     try {
-      const response = await api.get('/subscriptions', {
-        headers: { 'Accept': 'application/json' }
-      });
+      const response = await api.get('/subscriptions');
       return response.data;
     } catch (error) {
-      console.error('Get all subscriptions error:', error.response ? error.response.data : error.message);
-      throw error;
+      console.error('Get all subscriptions error:', error.response?.data || error);
+      throw error.response?.data || error;
     }
   },
 
@@ -141,13 +139,11 @@ export const subscriptionsAPI = {
 
   getClientSubscriptions: async (clientId) => {
     try {
-      const response = await api.get(`/client-subscriptions/${clientId}`, {
-        headers: { 'Accept': 'application/json' }
-      });
+      const response = await api.get(`/subscriptions/client/${clientId}`);
       return response.data;
     } catch (error) {
-      console.error(`Get client subscriptions error:`, error.response ? error.response.data : error.message);
-      throw error;
+      console.error(`Get client ${clientId} subscriptions error:`, error.response?.data || error);
+      throw error.response?.data || error;
     }
   },
 
@@ -224,3 +220,5 @@ export const subscriptionsAPI = {
     }
   }
 };
+
+export default subscriptionsAPI;

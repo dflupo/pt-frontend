@@ -24,11 +24,12 @@ export default function UsersTable() {
     useEffect(() => {
         // Filter users when the search term or users data changes
         if (users && users.length > 0) {
-            const filtered = users.filter(user => {
+            const filtered = users.filter(client => {
+                const user = client.user || {};
                 const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
                 const searchLower = searchTerm.toLowerCase();
                 return fullName.includes(searchLower) || 
-                       (user.id && user.id.toString().includes(searchLower));
+                       (client.id && client.id.toString().includes(searchLower));
             });
             setFilteredUsers(filtered);
         } else {
@@ -79,20 +80,28 @@ export default function UsersTable() {
     };
 
     // Funzione per formattare il nome utente per l'URL
-    const formatNameForUrl = (firstName, lastName) => {
+    const formatNameForUrl = (user, clientId) => {
+        if (!user) return '';
         // Rimuove spazi e caratteri speciali, converte in lowercase
-        return `${firstName}${lastName}`
+        const formattedName = `${user.first_name}${user.last_name}`
             .toLowerCase()
             .normalize('NFD') // Normalizza per gestire caratteri accentati
             .replace(/[\u0300-\u036f]/g, '') // Rimuove diacritici
             .replace(/[^\w\s]/gi, '') // Rimuove caratteri speciali
             .replace(/\s+/g, ''); // Rimuove spazi
+        
+        return `${formattedName}-${clientId}`;
     };
 
     // Funzione per gestire il click sulla riga
-    const handleRowClick = (user) => {
-        const nameUrl = formatNameForUrl(user.first_name, user.last_name);
-        navigate(`/gestione-utenti/${nameUrl}`, { state: { userId: user.id } });
+    const handleRowClick = (client) => {
+        const nameUrl = formatNameForUrl(client.user, client.id);
+        navigate(`/gestione-utenti/${nameUrl}`, { 
+            state: { 
+                userId: client.user_id,
+                clientId: client.id 
+            } 
+        });
     };
 
     // Funzione per gestire il sort delle colonne
@@ -122,8 +131,15 @@ export default function UsersTable() {
 
         // Gestione speciale per campi specifici
         if (sortConfig.key === 'birth_date') {
-            aValue = a.birth_date ? new Date(a.birth_date).getTime() : 0;
-            bValue = b.birth_date ? new Date(b.birth_date).getTime() : 0;
+            const aUser = a.user || {};
+            const bUser = b.user || {};
+            aValue = aUser.birth_date ? new Date(aUser.birth_date).getTime() : 0;
+            bValue = bUser.birth_date ? new Date(bUser.birth_date).getTime() : 0;
+        } else if (sortConfig.key === 'name') {
+            const aUser = a.user || {};
+            const bUser = b.user || {};
+            aValue = `${aUser.first_name || ''} ${aUser.last_name || ''}`.toLowerCase();
+            bValue = `${bUser.first_name || ''} ${bUser.last_name || ''}`.toLowerCase();
         } else if (sortConfig.key === 'first_subscription_date' || sortConfig.key === 'created_at') {
             aValue = a[sortConfig.key] ? new Date(a[sortConfig.key]).getTime() : 0;
             bValue = b[sortConfig.key] ? new Date(b[sortConfig.key]).getTime() : 0;
@@ -135,9 +151,6 @@ export default function UsersTable() {
             const statusOrder = { 'active': 0, 'expiring': 1, 'expired': 2 };
             aValue = statusOrder[aStatus];
             bValue = statusOrder[bStatus];
-        } else if (sortConfig.key === 'name') {
-            aValue = `${a.first_name} ${a.last_name}`.toLowerCase();
-            bValue = `${b.first_name} ${b.last_name}`.toLowerCase();
         } else if (sortConfig.key === 'goals') {
             aValue = a.goals && a.goals.length > 0 ? a.goals[0].progress || 0 : 0;
             bValue = b.goals && b.goals.length > 0 ? b.goals[0].progress || 0 : 0;
@@ -229,32 +242,33 @@ export default function UsersTable() {
                         </thead>
 
                         <tbody>
-                            {sortedUsers.map(user => {
+                            {sortedUsers.map(client => {
+                                const user = client.user || {};
                                 const subscriptionStatus = getSubscriptionStatus(user);
                                 return (
                                     <tr 
-                                        key={user.id} 
-                                        onClick={() => handleRowClick(user)}
+                                        key={client.id} 
+                                        onClick={() => handleRowClick(client)}
                                         className="clickable-row"
                                     >
-                                        <td>{user.id}</td>
-                                        <td>{`${user.first_name} ${user.last_name}`}</td>
+                                        <td>{client.id}</td>
+                                        <td>{`${user.first_name || ''} ${user.last_name || ''}`}</td>
                                         <td>{calculateAge(user.birth_date)}</td>
-                                        <td>{formatJoinDate(user.first_subscription_date || user.created_at)}</td>
+                                        <td>{formatJoinDate(client.first_subscription_date || client.created_at)}</td>
                                         <td className='status'>
                                             <span className={subscriptionStatus.status}>
                                                 {subscriptionStatus.label}
                                             </span>
                                         </td>
                                         <td>
-                                            {user.goals && user.goals.length > 0 ? (
-                                                <ProgressBar progress={user.goals[0].progress || 0} />
+                                            {client.goals && client.goals.length > 0 ? (
+                                                <ProgressBar progress={client.goals[0].progress || 0} />
                                             ) : (
                                                 "Nessun obiettivo"
                                             )}
                                         </td>
-                                        <td>{user.variation_percentage ? `${user.variation_percentage}%` : "N/A"}</td>
-                                        <td>{getLastUpdate(user.updated_at || user.latest_update)}</td>
+                                        <td>{client.variation_percentage ? `${client.variation_percentage}%` : "N/A"}</td>
+                                        <td>{getLastUpdate(client.updated_at)}</td>
                                     </tr>
                                 );
                             })}

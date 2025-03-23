@@ -7,10 +7,16 @@ import UserSchedule from '../../components/features/UserSchedule/UserSchedule';
 
 export default function UserPage() {
   const { TopBar } = useOutletContext();
-  const { name } = useParams(); // Get the name from URL
+  const { name } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const userId = location.state?.userId; // Get the user ID from location state
+
+  // Estrai l'ID dal nome del parametro URL (formato: nomeUtente-ID)
+  const urlClientId = name ? parseInt(name.split('-').pop()) : null;
+  
+  // Usa l'ID dal location state se disponibile, altrimenti usa quello dall'URL
+  const userId = location.state?.userId;
+  const clientId = location.state?.clientId || urlClientId;
   
   // Parse current view from URL
   const searchParams = new URLSearchParams(location.search);
@@ -19,7 +25,7 @@ export default function UserPage() {
   // Use the clients hook for basic user data
   const { 
     selectedClient: user, 
-    fetchClientById, 
+    fetchClientById,
     loading: loadingUser, 
     error: userError 
   } = useClients();
@@ -58,20 +64,28 @@ export default function UserPage() {
   // Load user basic data
   useEffect(() => {
     const loadUserData = async () => {
-      if (userId) {
-        await fetchClientById(userId);
+      if (clientId) {
+        try {
+          await fetchClientById(clientId);
+        } catch (error) {
+          console.error("Errore nel caricamento del cliente:", error);
+          // Se c'è un errore nel caricamento, reindirizza alla lista utenti
+          navigate('/gestione-utenti');
+        }
       } else {
-        console.warn('User ID not available, cannot load user details');
+        console.warn('ID cliente non disponibile');
+        // Se non c'è un ID cliente, reindirizza alla lista utenti
+        navigate('/gestione-utenti');
       }
     };
 
     loadUserData();
-  }, [userId, name, fetchClientById]);
+  }, [clientId, fetchClientById, navigate]);
 
   // Load related data when user is loaded
   useEffect(() => {
     const loadRelatedData = async () => {
-      if (!user || !user.id) return;
+      if (!user) return;
       
       setLoadingRelatedData(true);
       try {
@@ -83,14 +97,14 @@ export default function UserPage() {
         setSubscriptions(subsData || []);
         
         // Fetch workout plans
-        const workoutsData = await getUserWorkoutPlans(user.id);
+        const workoutsData = await getUserWorkoutPlans(user.user_id);
         setWorkoutPlans(workoutsData || []);
         
         // Fetch meal plans
         const mealsData = await fetchClientMealPlans(user.id);
         setMealPlans(mealsData || []);
       } catch (error) {
-        console.error("Error loading related data", error);
+        console.error("Errore nel caricamento dei dati correlati:", error);
       } finally {
         setLoadingRelatedData(false);
       }
@@ -365,7 +379,7 @@ export default function UserPage() {
           <div className="schedule-content">
             {/* Orari Predefiniti - Componente UserSchedule */}
             <div className="schedule-container">
-              {user && user.id && <UserSchedule userId={user.id} />}
+              {user && user.user_id && <UserSchedule userId={user.user_id} />}
             </div>
           </div>
         );
@@ -387,7 +401,7 @@ export default function UserPage() {
     <div className="user-page">
       <TopBar title={`Pagina Utente`} />
       <div className="user-header">
-        <h1>{user.first_name} {user.last_name}</h1>
+        <h1>{user?.user?.first_name} {user?.user?.last_name}</h1>
         
         <div className="user-badges">
           {subscriptions && subscriptions.length > 0 && (
@@ -404,35 +418,35 @@ export default function UserPage() {
           <h2>Informazioni Personali</h2>
           <div className="info-row">
             <span className="label">Email:</span>
-            <span className="value">{user.email}</span>
+            <span className="value">{user?.user?.email}</span>
           </div>
           <div className="info-row">
             <span className="label">Telefono:</span>
-            <span className="value">{user.phone || 'Non specificato'}</span>
+            <span className="value">{user?.user?.phone || 'Non specificato'}</span>
           </div>
           <div className="info-row">
             <span className="label">Città:</span>
-            <span className="value">{user.city || 'Non specificata'}</span>
+            <span className="value">{user?.user?.city || 'Non specificata'}</span>
           </div>
           <div className="info-row">
             <span className="label">Data di nascita:</span>
-            <span className="value">{formatDate(user.birth_date)}</span>
+            <span className="value">{formatDate(user?.user?.birth_date)}</span>
           </div>
           <div className="info-row">
             <span className="label">Età:</span>
-            <span className="value">{calculateAge(user.birth_date)}</span>
+            <span className="value">{calculateAge(user?.user?.birth_date)}</span>
           </div>
           <div className="info-row">
             <span className="label">Altezza:</span>
-            <span className="value">{user.height ? `${user.height} cm` : 'Non specificata'}</span>
+            <span className="value">{user?.height ? `${user?.height} cm` : 'Non specificata'}</span>
           </div>
           <div className="info-row">
             <span className="label">Iscritto dal:</span>
-            <span className="value">{formatDate(user.first_subscription_date)}</span>
+            <span className="value">{formatDate(user?.first_subscription_date)}</span>
           </div>
           <div className="info-row">
             <span className="label">Ultimo aggiornamento:</span>
-            <span className="value">{formatDate(user.latest_update || user.updated_at)}</span>
+            <span className="value">{formatDate(user?.updated_at)}</span>
           </div>
         </div>
         

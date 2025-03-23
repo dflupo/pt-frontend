@@ -13,19 +13,18 @@ export default function useAuth() {
     setLoading(true);
     setError(null);
     try {
-      const response = await authAPI.login(email, password);
+      // Prima effettuiamo il login per ottenere i token
+      const loginResponse = await authAPI.login(email, password);
       
-      // You'll need to extract the user ID from the login response
-      // For example, if the response has a user_id field:
-      const userId = response.user_id; 
-      
-      // Store the user ID for future use
-      localStorage.setItem('user_id', userId);
-      console.log(localStorage.getItem('user_id'));
-      
+      // Impostiamo il token nell'header per le richieste successive
+      if (loginResponse.access_token) {
+        localStorage.setItem('access_token', loginResponse.access_token);
+        localStorage.setItem('refresh_token', loginResponse.refresh_token);
+      }
+
       try {
-        // Use getUserById 
-        const userData = await usersAPI.getUserById(userId);
+        // Poi otteniamo i dati dell'utente usando il token appena ottenuto
+        const userData = await authAPI.getCurrentUser();
         setUser(userData);
         setIsAuthenticated(true);
         return userData;
@@ -69,20 +68,16 @@ export default function useAuth() {
       await authAPI.logout();
       setUser(null);
       setIsAuthenticated(false);
-      // Assicurati di rimuovere l'ID utente al logout
-      localStorage.removeItem('user_id');
     } catch (err) {
       const errorMessage = err.response?.data?.detail || 'Failed to logout';
       setError(typeof errorMessage === 'string' ? errorMessage : 'Logout error occurred');
       // Anche se il logout lato server fallisce, eseguiamo comunque il logout lato client
       setUser(null);
       setIsAuthenticated(false);
-      localStorage.removeItem('user_id');
     } finally {
       setLoading(false);
     }
   }, [setUser, setIsAuthenticated]);
-
 
   // Funzione per cancellare gli errori
   const clearError = useCallback(() => {

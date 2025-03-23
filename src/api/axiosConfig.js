@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Usa la variabile d'ambiente se disponibile, altrimenti usa un valore predefinito
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// In development, use relative path for proxy
+// In production, use the environment variable or default URL
+const API_URL = '/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,6 +10,21 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Flag per tracciare se stiamo già facendo un refresh del token
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 // Interceptor per le richieste
 api.interceptors.request.use(
@@ -41,18 +57,59 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
     // Gestione migliorata degli errori
     if (error.response) {
       const { status, data, config } = error.response;
       console.error(`API Error ${status}: ${config.method.toUpperCase()} ${config.url}`, data);
       
       // Gestione errori di autenticazione
-      if (status === 401) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        // Opzionale: reindirizza alla pagina di login
-        // window.location.href = '/login';
+      if (status === 401 && !originalRequest._retry) {
+        if (isRefreshing) {
+          try {
+            const token = await new Promise((resolve, reject) => {
+              failedQueue.push({ resolve, reject });
+            });
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            return api(originalRequest);
+          } catch (err) {
+            return Promise.reject(err);
+          }
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (!refreshToken) {
+            throw new Error('No refresh token available');
+          }
+
+          const response = await api.post('/auth/refresh', {
+            refresh_token: refreshToken
+          });
+
+          if (response.data.access_token) {
+            localStorage.setItem('access_token', response.data.access_token);
+            localStorage.setItem('refresh_token', response.data.refresh_token);
+            api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
+            originalRequest.headers['Authorization'] = `Bearer ${response.data.access_token}`;
+            
+            processQueue(null, response.data.access_token);
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
       }
       
       // Formatta gli errori di validazione per un debug migliore

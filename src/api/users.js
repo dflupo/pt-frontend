@@ -1,6 +1,20 @@
 import api from './axiosConfig';
 
 export const usersAPI = {
+  /**
+   * Crea un nuovo utente
+   * @param {Object} userData - Dati dell'utente (email, password, first_name, last_name, phone, city, birth_date)
+   * @returns {Promise<Object>} Dati dell'utente creato
+   */
+  createUser: async (userData) => {
+    try {
+      const response = await api.post('/users', userData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating user:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
   
   /**
    * Ottiene i dettagli di un utente specifico per ID
@@ -137,6 +151,20 @@ export const usersAPI = {
       throw error;
     }
   },
+  
+  /**
+   * Ottiene le informazioni dell'utente corrente
+   * @returns {Promise<Object>} Dati dell'utente corrente
+   */
+  getCurrentUser: async () => {
+    try {
+      const response = await api.get('/me');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting current user:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  }
 };
 
 export default usersAPI;

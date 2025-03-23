@@ -1,19 +1,14 @@
 import api from './axiosConfig';
 
-export const workoutPlansAPI = {
+const workoutPlansAPI = {
   // Workout Plans
-  getAllWorkoutPlans: async (filters = {}) => {
+  getAllWorkoutPlans: async () => {
     try {
-      const response = await api.get('/workout-plans', {
-        params: filters,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.get('/workouts');
       return response.data;
     } catch (error) {
-      console.error('Get all workout plans error:', error.response ? error.response.data : error.message);
-      throw error;
+      console.error('Get all workout plans error:', error.response?.data || error);
+      throw error.response?.data || error;
     }
   },
 
@@ -168,15 +163,11 @@ export const workoutPlansAPI = {
 
   getUserWorkoutPlans: async (userId) => {
     try {
-      const response = await api.get(`/users/${userId}/workout-plans`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.get(`/workouts/user/${userId}`);
       return response.data;
     } catch (error) {
-      console.error(`Get user workout plans error:`, error.response ? error.response.data : error.message);
-      throw error;
+      console.error(`Get user ${userId} workout plans error:`, error.response?.data || error);
+      throw error.response?.data || error;
     }
   },
 
@@ -194,3 +185,5 @@ export const workoutPlansAPI = {
     }
   }
 };
+
+export default workoutPlansAPI;
