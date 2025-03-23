@@ -1,7 +1,7 @@
 import './UserPage.scss';
 import { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { useClients, useGoals, useWorkoutPlans, useSubscriptions, useMealPlans } from '../../hooks';
+import { useClients, useGoals, useWorkoutPlans, useMealPlans } from '../../hooks';
 import { useOutletContext } from 'react-router-dom';
 import UserSchedule from '../../components/features/UserSchedule/UserSchedule';
 
@@ -22,17 +22,17 @@ export default function UserPage() {
   const searchParams = new URLSearchParams(location.search);
   const currentView = searchParams.get('view') || 'home';
   
-  // Use the clients hook for basic user data
+  // Use the clients hook for basic user data and subscriptions
   const { 
     selectedClient: user, 
     fetchClientById,
+    fetchClientSubscriptions,
     loading: loadingUser, 
     error: userError 
   } = useClients();
 
   // Use additional hooks for related data
   const { clientGoals, fetchClientGoals, loading: loadingGoals } = useGoals();
-  const { getClientSubscriptions, loading: loadingSubscriptions } = useSubscriptions();
   const { getUserWorkoutPlans, loading: loadingWorkoutPlans } = useWorkoutPlans();
   const { fetchClientMealPlans, loading: loadingMealPlans } = useMealPlans();
 
@@ -40,10 +40,11 @@ export default function UserPage() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [workoutPlans, setWorkoutPlans] = useState([]);
   const [mealPlans, setMealPlans] = useState([]);
-  
-  // Overall loading state
-  const loading = loadingUser || loadingGoals || loadingSubscriptions || loadingWorkoutPlans || loadingMealPlans;
   const [loadingRelatedData, setLoadingRelatedData] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  // Overall loading state
+  const loading = loadingUser || loadingGoals || loadingWorkoutPlans || loadingMealPlans;
 
   // Available views
   const views = [
@@ -64,18 +65,19 @@ export default function UserPage() {
   // Load user basic data
   useEffect(() => {
     const loadUserData = async () => {
-      if (clientId) {
-        try {
-          await fetchClientById(clientId);
-        } catch (error) {
-          console.error("Errore nel caricamento del cliente:", error);
-          // Se c'è un errore nel caricamento, reindirizza alla lista utenti
-          navigate('/gestione-utenti');
+      if (!clientId) {
+        navigate('/gestione-utenti', { replace: true });
+        return;
+      }
+
+      try {
+        const userData = await fetchClientById(clientId);
+        if (!userData) {
+          navigate('/gestione-utenti', { replace: true });
         }
-      } else {
-        console.warn('ID cliente non disponibile');
-        // Se non c'è un ID cliente, reindirizza alla lista utenti
-        navigate('/gestione-utenti');
+      } catch (error) {
+        console.error("Errore nel caricamento del cliente:", error);
+        navigate('/gestione-utenti', { replace: true });
       }
     };
 
@@ -85,33 +87,45 @@ export default function UserPage() {
   // Load related data when user is loaded
   useEffect(() => {
     const loadRelatedData = async () => {
-      if (!user) return;
+      if (!user?.id || dataLoaded) return;
       
       setLoadingRelatedData(true);
+      
       try {
-        // Fetch goals
-        await fetchClientGoals(user.id);
-        
-        // Fetch subscriptions
-        const subsData = await getClientSubscriptions(user.id);
+        // Fetch subscriptions - se fallisce, imposta array vuoto
+        const subsData = await fetchClientSubscriptions(clientId)
+          .catch(() => {
+            console.log('Nessun abbonamento trovato per il cliente');
+            return [];
+          });
         setSubscriptions(subsData || []);
         
-        // Fetch workout plans
-        const workoutsData = await getUserWorkoutPlans(user.user_id);
+        // Fetch workout plans - se fallisce, imposta array vuoto
+        const workoutsData = await getUserWorkoutPlans(user.user_id)
+          .catch(() => {
+            console.log('Nessun piano di allenamento trovato per l\'utente');
+            return [];
+          });
         setWorkoutPlans(workoutsData || []);
         
-        // Fetch meal plans
-        const mealsData = await fetchClientMealPlans(user.id);
+        // Fetch meal plans - se fallisce, imposta array vuoto
+        const mealsData = await fetchClientMealPlans(user.id)
+          .catch(() => {
+            console.log('Nessun piano alimentare trovato per il cliente');
+            return [];
+          });
         setMealPlans(mealsData || []);
       } catch (error) {
+        // Log dell'errore ma non blocchiamo il caricamento della pagina
         console.error("Errore nel caricamento dei dati correlati:", error);
       } finally {
         setLoadingRelatedData(false);
+        setDataLoaded(true);
       }
     };
     
     loadRelatedData();
-  }, [user, fetchClientGoals, getClientSubscriptions, getUserWorkoutPlans, fetchClientMealPlans]);
+  }, [user, fetchClientSubscriptions, getUserWorkoutPlans, fetchClientMealPlans, dataLoaded, clientId]);
 
   // Format date helper
   const formatDate = (dateString) => {
@@ -143,7 +157,7 @@ export default function UserPage() {
             {/* Abbonamenti */}
             <div className="user-info-card">
               <h2>Abbonamenti</h2>
-              {loadingSubscriptions ? (
+              {loading ? (
                 <div className="loading-indicator">Caricamento abbonamenti...</div>
               ) : subscriptions && subscriptions.length > 0 ? (
                 <div className="subscriptions-list">
@@ -379,7 +393,7 @@ export default function UserPage() {
           <div className="schedule-content">
             {/* Orari Predefiniti - Componente UserSchedule */}
             <div className="schedule-container">
-              {user && user.user_id && <UserSchedule userId={user.user_id} />}
+              {user && <UserSchedule userId={user.user_id} />}
             </div>
           </div>
         );
@@ -394,8 +408,8 @@ export default function UserPage() {
   };
 
   if (loadingUser) return <div className="user-page-loading">Caricamento dettagli utente...</div>;
-  if (userError) return <div className="user-page-error">{userError}</div>;
-  if (!user) return <div className="user-not-found">Utente non trovato</div>;
+  if (!user && userError) return <div className="user-page-error">Utente non trovato</div>;
+  if (!user) return <div className="user-page-loading">Caricamento dettagli utente...</div>;
 
   return (
     <div className="user-page">

@@ -20,7 +20,7 @@ const UserSchedule = ({ userId }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingScheduleId, setEditingScheduleId] = useState(null);
   const [formData, setFormData] = useState({
-    day_of_week: 'monday',
+    day: 'MONDAY',
     start_time: '08:00',
     end_time: '09:00',
     user_id: userId,
@@ -116,7 +116,7 @@ const UserSchedule = ({ userId }) => {
   // Reimposta la form ai valori di default
   const resetForm = () => {
     setFormData({
-      day_of_week: 'monday',
+      day: 'MONDAY',
       start_time: '08:00',
       end_time: '09:00',
       user_id: userId,
@@ -131,11 +131,11 @@ const UserSchedule = ({ userId }) => {
   // Imposta la form per la modifica di uno schedule esistente
   const handleEdit = (schedule) => {
     setFormData({
-      day_of_week: schedule.day_of_week,
+      day: schedule.day.toUpperCase(),
       start_time: secondsToTimeString(schedule.start_time), 
       end_time: secondsToTimeString(schedule.end_time),
       user_id: userId,
-      active: schedule.active !== false && schedule.active !== 0 // Se non è esplicitamente false o 0, lo consideriamo attivo
+      active: schedule.active !== false && schedule.active !== 0
     });
     setIsEditing(true);
     setEditingScheduleId(schedule.id);
@@ -177,23 +177,20 @@ const UserSchedule = ({ userId }) => {
       const startTimeSeconds = timeStringToSeconds(formData.start_time);
       const endTimeSeconds = timeStringToSeconds(formData.end_time);
       
+      const scheduleData = {
+        user_id: parseInt(userId),
+        day: formData.day,
+        start_time: startTimeSeconds,
+        end_time: endTimeSeconds,
+        active: formData.active ? 1 : 0
+      };
+      
       if (isEditing && editingScheduleId) {
         // Aggiornamento di uno schedule esistente
-        await updateUserSchedule(editingScheduleId, {
-          day_of_week: formData.day_of_week,
-          start_time: startTimeSeconds,
-          end_time: endTimeSeconds,
-          active: formData.active ? 1 : 0
-        });
+        await updateUserSchedule(editingScheduleId, scheduleData);
       } else {
         // Creazione di un nuovo schedule
-        const newSchedule = await createUserSchedule({
-          day_of_week: formData.day_of_week,
-          start_time: startTimeSeconds,
-          end_time: endTimeSeconds,
-          user_id: userId,
-          active: formData.active ? 1 : 0
-        });
+        const newSchedule = await createUserSchedule(scheduleData);
         
         // Esegui prenotazione automatica dopo la creazione dello schedule
         if (newSchedule && newSchedule.id) {
@@ -211,15 +208,17 @@ const UserSchedule = ({ userId }) => {
   // Traduci il giorno della settimana in italiano
   const getDayName = (day) => {
     const days = {
-      monday: 'Lunedì',
-      tuesday: 'Martedì',
-      wednesday: 'Mercoledì',
-      thursday: 'Giovedì',
-      friday: 'Venerdì',
-      saturday: 'Sabato',
-      sunday: 'Domenica'
+      MONDAY: 'Lunedì',
+      TUESDAY: 'Martedì',
+      WEDNESDAY: 'Mercoledì',
+      THURSDAY: 'Giovedì',
+      FRIDAY: 'Venerdì',
+      SATURDAY: 'Sabato',
+      SUNDAY: 'Domenica'
     };
-    return days[day] || day;
+    // Assicuriamoci che il giorno sia in maiuscolo prima di cercarlo nel dizionario
+    const upperDay = day ? day.toUpperCase() : '';
+    return days[upperDay] || upperDay;
   };
 
   // Renderizza il pannello laterale (form o conferma eliminazione)
@@ -254,21 +253,21 @@ const UserSchedule = ({ userId }) => {
             <h3>{editingScheduleId ? 'Modifica Orario' : 'Aggiungi turno'} {editingScheduleId ? <MdEdit className="header-icon" /> : <MdAddCircle className="header-icon" />}</h3>
             <form onSubmit={handleSubmit} className="schedule-form">
               <div className="form-group">
-                <label htmlFor="day_of_week">Giorno:</label>
+                <label htmlFor="day">Giorno:</label>
                 <select
-                  id="day_of_week"
-                  name="day_of_week"
-                  value={formData.day_of_week}
+                  id="day"
+                  name="day"
+                  value={formData.day}
                   onChange={handleInputChange}
                   required
                 >
-                  <option value="monday">Lunedì</option>
-                  <option value="tuesday">Martedì</option>
-                  <option value="wednesday">Mercoledì</option>
-                  <option value="thursday">Giovedì</option>
-                  <option value="friday">Venerdì</option>
-                  <option value="saturday">Sabato</option>
-                  <option value="sunday">Domenica</option>
+                  <option value="MONDAY">Lunedì</option>
+                  <option value="TUESDAY">Martedì</option>
+                  <option value="WEDNESDAY">Mercoledì</option>
+                  <option value="THURSDAY">Giovedì</option>
+                  <option value="FRIDAY">Venerdì</option>
+                  <option value="SATURDAY">Sabato</option>
+                  <option value="SUNDAY">Domenica</option>
                 </select>
               </div>
 
@@ -350,7 +349,7 @@ const UserSchedule = ({ userId }) => {
                     className={`schedule-item ${(!schedule.active || schedule.active === 0) ? 'inactive-schedule' : ''} ${editingScheduleId === schedule.id ? 'active-schedule' : ''}`}
                   >
                     <div className="schedule-details">
-                      <div className="schedule-day"><MdDateRange className="icon" /> {getDayName(schedule.day_of_week)}</div>
+                      <div className="schedule-day"><MdDateRange className="icon" /> {getDayName(schedule.day)}</div>
                       <div className="schedule-time">
                         <MdAccessTime className="icon" /> {secondsToTimeString(schedule.start_time)} - {secondsToTimeString(schedule.end_time)}
                         {(!schedule.active || schedule.active === 0) && (

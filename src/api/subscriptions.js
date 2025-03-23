@@ -139,7 +139,7 @@ const subscriptionsAPI = {
 
   getClientSubscriptions: async (clientId) => {
     try {
-      const response = await api.get(`/subscriptions/client/${clientId}`);
+      const response = await api.get(`/client-subscriptions/${clientId}`);
       return response.data;
     } catch (error) {
       console.error(`Get client ${clientId} subscriptions error:`, error.response?.data || error);

@@ -186,6 +186,103 @@ export const bookingsAPI = {
       console.error('Get autobooking status error:', error.response ? error.response.data : error.message);
       throw error;
     }
+  },
+
+  // ===== USER SCHEDULES =====
+  
+  /**
+   * Ottiene gli orari predefiniti di un utente
+   * @param {number} userId - ID dell'utente
+   * @returns {Promise<Array>} Lista degli orari predefiniti
+   */
+  getUserSchedules: async (userId) => {
+    try {
+      const response = await api.get(`/user-schedules/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Get user schedules error:`, error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Crea un nuovo orario predefinito per un utente
+   * @param {Object} scheduleData - Dati dell'orario
+   * @param {number} scheduleData.user_id - ID dell'utente
+   * @param {string} scheduleData.day - Giorno della settimana (MONDAY, TUESDAY, etc.)
+   * @param {string} scheduleData.start_time - Orario di inizio (HH:MM:SS)
+   * @param {string} scheduleData.end_time - Orario di fine (HH:MM:SS)
+   * @param {boolean} [scheduleData.active=true] - Stato attivo dello schedule
+   * @returns {Promise<Object>} Orario creato
+   */
+  createUserSchedule: async (scheduleData) => {
+    try {
+      // Assicuriamoci che il giorno sia in maiuscolo
+      const data = {
+        ...scheduleData,
+        day: scheduleData.day.toUpperCase(),
+      };
+      const response = await api.post('/user-schedules', data);
+      return response.data;
+    } catch (error) {
+      console.error('Create user schedule error:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Aggiorna un orario predefinito
+   * @param {number} scheduleId - ID dell'orario
+   * @param {Object} scheduleData - Dati da aggiornare
+   * @param {string} scheduleData.day - Giorno della settimana (MONDAY, TUESDAY, etc.)
+   * @param {string} scheduleData.start_time - Orario di inizio (HH:MM:SS)
+   * @param {string} scheduleData.end_time - Orario di fine (HH:MM:SS)
+   * @param {boolean} scheduleData.active - Stato attivo dello schedule
+   * @returns {Promise<Object>} Orario aggiornato
+   */
+  updateUserSchedule: async (scheduleId, scheduleData) => {
+    try {
+      // Assicuriamoci che il giorno sia in maiuscolo
+      const data = {
+        ...scheduleData,
+        day: scheduleData.day.toUpperCase(),
+      };
+      const response = await api.put(`/user-schedules/${scheduleId}`, data);
+      return response.data;
+    } catch (error) {
+      console.error(`Update user schedule error:`, error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Elimina un orario predefinito
+   * @param {number} scheduleId - ID dell'orario
+   * @returns {Promise<Object>} Risultato dell'operazione
+   */
+  deleteUserSchedule: async (scheduleId) => {
+    try {
+      const response = await api.delete(`/user-schedules/${scheduleId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Delete user schedule error:`, error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Esegue la prenotazione automatica per un gruppo di utenti
+   * @param {Object} data - Dati per la prenotazione automatica (start_date, end_date, users)
+   * @returns {Promise<Object>} Risultato dell'operazione
+   */
+  autoBookUsers: async (data) => {
+    try {
+      const response = await api.post('/bookings/auto', data);
+      return response.data;
+    } catch (error) {
+      console.error('Auto-book users error:', error.response ? error.response.data : error.message);
+      throw error;
+    }
   }
 };
 
